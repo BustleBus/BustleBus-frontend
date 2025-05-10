@@ -1,12 +1,20 @@
 import { Card, IconButton } from "react-native-paper";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import React from "react";
 
-export default function SearchLog({ text }: { text: string }) {
+export default function SearchLog({
+  onPress,
+  children,
+}: {
+  onPress: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <View style={styles.logView}>
-      <Card style={styles.logCard}>
+      <Card style={styles.logCard} onPress={onPress}>
         <View style={styles.logContent}>
-          <Text style={styles.logText}>{text}</Text>
+          {children}
+
           <IconButton icon="close" size={16} onPress={() => {}} />
         </View>
       </Card>

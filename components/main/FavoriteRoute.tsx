@@ -10,8 +10,12 @@ export default function FavoriteRoute({
 }) {
   return (
     <ListItemBox>
-      <Text>{start} →</Text>
-      <Text>{end}</Text>
+      <Text numberOfLines={1} ellipsizeMode="tail">
+        🚩{start}
+      </Text>
+      <Text numberOfLines={1} ellipsizeMode="tail">
+        🏁{end}
+      </Text>
     </ListItemBox>
   );
 }

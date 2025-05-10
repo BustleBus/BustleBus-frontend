@@ -8,15 +8,17 @@ interface ListItemBoxProps {
   children: ReactNode;
   onRemove?: () => void;
   showClose?: boolean;
+  onPress?: () => void;
 }
 
 export default function ListItemBox({
   children,
   onRemove,
   showClose = true,
+  onPress = () => {},
 }: ListItemBoxProps) {
   return (
-    <TouchableOpacity style={styles.ListItemBox}>
+    <TouchableOpacity style={styles.ListItemBox} onPress={onPress}>
       <View style={sharedStyles.flexOne}>{children}</View>
       {showClose ? (
         <TouchableOpacity onPress={onRemove}>

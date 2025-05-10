@@ -73,7 +73,7 @@ export default function Index() {
               <FavoriteBus>130번</FavoriteBus>
             </View>
             <View style={[sharedStyles.flexOne, styles.padding]}>
-              <FavoriteBus>160번</FavoriteBus>
+              <FavoriteBus>60번</FavoriteBus>
             </View>
           </View>
         </View>

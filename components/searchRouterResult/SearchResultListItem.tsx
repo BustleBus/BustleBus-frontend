@@ -1,0 +1,79 @@
+import { StyleSheet, Text, View } from "react-native";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import ListItemBox from "@/components/common/ListItemBox";
+
+export default function SearchResultListItem({
+  time,
+  bus,
+  crowdLevel,
+}: {
+  time: string;
+  bus: string;
+  crowdLevel: string;
+}) {
+  return (
+    <View style={styles.container}>
+      <ListItemBox showClose={false}>
+        <View style={styles.card}>
+          <View style={styles.leftSection}>
+            <Text style={styles.optimalText}>최적</Text>
+            <MaterialCommunityIcons name="bus" size={20} color="black" />
+            <Text style={styles.timeText}>{time}</Text>
+          </View>
+          <View>
+            <Text style={styles.routeText}>
+              <Text>{bus}</Text>
+            </Text>
+          </View>
+          <View style={styles.rightSection}>
+            <Text style={styles.crowdText}>{crowdLevel}</Text>
+          </View>
+        </View>
+      </ListItemBox>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    marginVertical: 5,
+  },
+  card: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderRadius: 16,
+    borderColor: "black",
+    alignItems: "center",
+    shadowOffset: { width: 0, height: 2 },
+  },
+  leftSection: {
+    alignItems: "center",
+  },
+  rightSection: {
+    alignItems: "flex-end",
+  },
+  optimalText: {
+    color: "#555",
+    marginBottom: 4,
+    fontSize: 14,
+  },
+  timeText: {
+    color: "#555",
+    marginTop: 4,
+    fontSize: 14,
+  },
+  routeText: {
+    color: "#000",
+    fontSize: 16,
+  },
+
+  routeMultiView: {
+    color: "#000",
+    flexDirection: "column",
+  },
+  crowdText: {
+    color: "#d32f2f",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+});

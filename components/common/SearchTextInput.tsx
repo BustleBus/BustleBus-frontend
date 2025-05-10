@@ -12,7 +12,7 @@ export default function SearchTextInput({
   text: string;
   setText: Dispatch<SetStateAction<string>>;
   placeholder: string;
-  onBlur: () => void;
+  onBlur?: () => void; // 선택적 onBlur
   style?: object;
 }) {
   return (
@@ -21,7 +21,7 @@ export default function SearchTextInput({
         value={text}
         onChangeText={setText}
         placeholder={placeholder}
-        onBlur={() => setTimeout(onBlur, 10)} // 포커스 해제 타이밍 안정화
+        onBlur={onBlur ? () => setTimeout(onBlur, 10) : undefined} // 옵션 처리
         mode="flat"
         style={styles.input}
         underlineColor="transparent"
@@ -31,7 +31,7 @@ export default function SearchTextInput({
       <TouchableOpacity
         onPress={() => {
           setText("");
-          onBlur();
+          if (onBlur) onBlur(); // onBlur가 있을 때만 호출
         }}
         style={styles.icon}
       >

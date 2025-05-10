@@ -2,14 +2,17 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import SearchTextInput from "@/components/common/SearchTextInput";
 import { Card, Divider } from "react-native-paper";
-import SearchLog from "@/components/searchLog/SearchLog";
-import SearchResult from "@/components/searchResult/SearchResult";
+import SearchRouterResult from "@/components/searchRouterResult/SearchRouterResult";
+import RouterLog from "@/components/routerLog/RouterLog";
+import { useRouter } from "expo-router";
 
 export default function SearchRoute() {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [focusTarget, setFocusTarget] = useState<"start" | "end" | null>(null);
-
+  //todo: 엔터를 막아야함. 엔터 대신 클릭을 해야 텍스트 필드를 채우도록 해야함.
+  // todo: 도착지에서 선택을 했을 때 출발지가 되어 있으면 페이지가 이동 되어야함.
+  const router = useRouter();
   return (
     <View style={styles.body}>
       <View style={styles.search}>
@@ -38,21 +41,21 @@ export default function SearchRoute() {
       <View style={styles.result}>
         {focusTarget ? (
           <Card style={styles.card}>
-            <SearchResult
+            <SearchRouterResult
               place={"연암공과대학교"}
               placeDetail={"경상남도 진주시 대신로 369 ..."}
             />
-            <SearchResult
+            <SearchRouterResult
               place={"연암공과대학교"}
               placeDetail={"경상남도 진주시 대신로 369 ..."}
             />
-            <SearchResult
+            <SearchRouterResult
               place={"연암공과대학교"}
               placeDetail={"경상남도 진주시 대신로 369 ..."}
             />
           </Card>
         ) : (
-          <SearchLog text={"연암공과대학교-> 경상국립대학교"} />
+          <RouterLog text={"연암공과대학교-> 경상국립대학교"} />
         )}
       </View>
     </View>

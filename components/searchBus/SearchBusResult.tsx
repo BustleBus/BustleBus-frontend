@@ -1,19 +1,21 @@
 import { StyleSheet, Text, View } from "react-native";
 import ListItemBox from "@/components/common/ListItemBox";
+import { useRouter } from "expo-router";
 
-export default function SearchResult({
-  place,
-  placeDetail,
+export default function SearchBusResult({
+  bus,
+  routePath,
 }: {
-  place: string;
-  placeDetail: string;
+  bus: string;
+  routePath: string;
 }) {
+  const router = useRouter();
   return (
     <View style={styles.box}>
-      <ListItemBox showClose={false}>
+      <ListItemBox showClose={false} onPress={() => {}}>
         <View style={{ flexDirection: "column", flexShrink: 1 }}>
-          <Text style={{ fontWeight: "bold" }}>{place}</Text>
-          <Text>{placeDetail}</Text>
+          <Text style={{ fontWeight: "bold" }}>{bus}</Text>
+          <Text>{routePath}</Text>
         </View>
       </ListItemBox>
     </View>
