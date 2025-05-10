@@ -13,7 +13,7 @@ export default function BusLog({
   const router = useRouter();
   return (
     <View>
-      <SearchLog onPress={() => router.push("/RouteDetailsPage")}>
+      <SearchLog onPress={() => router.navigate("/busDetailPage")}>
         <Text style={styles.logText}>
           <View>
             <Text style={styles.busText}>{bus}</Text>

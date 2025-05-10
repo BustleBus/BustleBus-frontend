@@ -7,7 +7,7 @@ export default function RouterLog({ text }: { text: string }) {
   const router = useRouter();
   return (
     <View>
-      <SearchLog onPress={() => router.push("/searchResultRoute")}>
+      <SearchLog onPress={() => router.navigate("/searchResultRoute")}>
         <Text style={styles.logText}>{text}</Text>
       </SearchLog>
     </View>

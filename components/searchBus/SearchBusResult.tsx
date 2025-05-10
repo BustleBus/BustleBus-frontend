@@ -12,8 +12,13 @@ export default function SearchBusResult({
   const router = useRouter();
   return (
     <View style={styles.box}>
-      <ListItemBox showClose={false} onPress={() => {}}>
-        <View style={{ flexDirection: "column", flexShrink: 1 }}>
+      <ListItemBox
+        showClose={false}
+        onPress={() => {
+          router.navigate("/busDetailPage");
+        }}
+      >
+        <View>
           <Text style={{ fontWeight: "bold" }}>{bus}</Text>
           <Text>{routePath}</Text>
         </View>

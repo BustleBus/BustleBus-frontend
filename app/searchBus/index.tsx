@@ -4,12 +4,10 @@ import SearchTextInput from "@/components/common/SearchTextInput";
 import { Card, Divider } from "react-native-paper";
 import BusLog from "@/components/searchBus/BusLog";
 import SearchBusResult from "@/components/searchBus/SearchBusResult";
-import { useRouter } from "expo-router";
 
 export default function SearchBus() {
   const [start, setStart] = useState("");
   const [focusTarget, setFocusTarget] = useState<"start" | "end" | null>(null);
-  const router = useRouter();
   return (
     <View style={styles.body}>
       <View style={styles.search}>
