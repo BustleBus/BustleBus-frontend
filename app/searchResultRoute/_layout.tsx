@@ -14,7 +14,7 @@ export default function MainLayout() {
 
         headerLeft: () => (
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPressIn={() => router.back()}
             style={{ paddingHorizontal: 12 }}
           >
             <Ionicons name="arrow-back" size={24} />
@@ -23,9 +23,9 @@ export default function MainLayout() {
 
         headerRight: () => (
           <TouchableOpacity
-            onPress={() => {
+            onPressIn={() => {
 
-              router.dismissAll();
+              router.replace("/main");
             }}
             style={{ paddingHorizontal: 12 }}
           >
