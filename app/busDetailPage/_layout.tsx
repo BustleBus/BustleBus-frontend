@@ -8,14 +8,12 @@ export default function MainLayout() {
   return (
     <Stack
       screenOptions={{
-        headerTitle: () => (
-          <Text style={{ fontSize: 16 }}>연암공과대학교 경상국립대</Text>
-        ),
+        headerTitle: () => <Text style={{ fontSize: 16 }}>160번 버스</Text>,
         headerTitleAlign: "left",
 
         headerLeft: () => (
           <TouchableOpacity
-            onPress={() => router.back()}
+            onPressIn={() => router.back()}
             style={{ paddingHorizontal: 12 }}
           >
             <Ionicons name="arrow-back" size={24} />
@@ -24,8 +22,8 @@ export default function MainLayout() {
 
         headerRight: () => (
           <TouchableOpacity
-            onPress={() => {
-              router.dismissAll();
+            onPressIn={() => {
+              router.replace("/main");
             }}
             style={{ paddingHorizontal: 12 }}
           >
