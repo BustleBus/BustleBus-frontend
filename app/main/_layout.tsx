@@ -7,7 +7,7 @@ export default function MainLayout() {
       screenOptions={{
         headerLeft: () => (
           <TouchableOpacity
-            onPress={() => {
+            onPressIn={() => {
               router.push("/onboarding");
             }}
           >
