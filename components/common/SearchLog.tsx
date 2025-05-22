@@ -5,9 +5,11 @@ import React from "react";
 export default function SearchLog({
   onPress,
   children,
+  onClose,
 }: {
   onPress: () => void;
   children: React.ReactNode;
+  onClose: () => void;
 }) {
   return (
     <View style={styles.logView}>
@@ -15,7 +17,7 @@ export default function SearchLog({
         <View style={styles.logContent}>
           {children}
 
-          <IconButton icon="close" size={16} onPress={() => {}} />
+          <IconButton icon="close" size={16} onPress={onClose} />
         </View>
       </Card>
     </View>
@@ -25,7 +27,7 @@ export default function SearchLog({
 const styles = StyleSheet.create({
   logView: {
     flexDirection: "column",
-    marginVertical: 10,
+    marginVertical: 3,
   },
   logCard: {
     padding: 16,

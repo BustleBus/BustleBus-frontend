@@ -18,7 +18,7 @@ export default function ListItemBox({
   onPress = () => {},
 }: ListItemBoxProps) {
   return (
-    <TouchableOpacity style={styles.ListItemBox} onPress={onPress}>
+    <TouchableOpacity style={styles.ListItemBox} onPressIn={onPress}>
       <View style={sharedStyles.flexOne}>{children}</View>
       {showClose ? (
         <TouchableOpacity onPress={onRemove}>
