@@ -10,17 +10,49 @@ import FavoriteRoute from "@/components/main/FavoriteRoute";
 import FavoriteBus from "@/components/main/FavoriteBus";
 import { useRouter } from "expo-router";
 import { sharedStyles } from "@/styles/shared";
+import { useCallback, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
+
+type FavoriteRouteItem = {
+  startPlaceName: string;
+  endPlaceName: string;
+  startX: string;
+  startY: string;
+  endX: string;
+  endY: string;
+};
 
 export default function Index() {
-  const routes = [
-    { start: "연암공과대학교", end: "경상국립대학교" },
-    { start: "출발지", end: "도착지" },
-    { start: "A", end: "B" },
-    { start: "C", end: "D" },
-    { start: "E", end: "F" },
-    { start: "G", end: "H" },
-  ];
+  const [favoriteRoutes, setFavoriteRoutes] = useState<FavoriteRouteItem[]>([]);
   const router = useRouter();
+
+  useFocusEffect(
+    useCallback(() => {
+      const loadFavorites = async () => {
+        try {
+          const jsonString = await AsyncStorage.getItem("routeFavorite");
+          if (jsonString) {
+            const parsed = JSON.parse(jsonString);
+            console.log(parsed);
+            setFavoriteRoutes(parsed);
+          }
+        } catch (e) {
+          console.error("❌ 즐겨찾기 로드 실패:", e);
+        }
+      };
+
+      loadFavorites();
+    }, []),
+  );
+
+  const handleFavoriteDelete = async (route: FavoriteRouteItem) => {
+    const updated = favoriteRoutes.filter(
+      (item) => !(item.startX === route.startX && item.endX === route.endX),
+    );
+    setFavoriteRoutes(updated);
+    await AsyncStorage.setItem("routeFavorite", JSON.stringify(updated));
+  };
   return (
     <ScrollView>
       <View style={styles.body}>
@@ -42,9 +74,9 @@ export default function Index() {
           <Text style={styles.sectionTitle}>경로 즐겨 찾기</Text>
           <Divider style={styles.divider} />
           <View style={sharedStyles.column}>
-            {Array.from({ length: Math.ceil(routes.length / 2) }).map(
+            {Array.from({ length: Math.ceil(favoriteRoutes.length / 2) }).map(
               (_, rowIdx) => {
-                const pair = routes.slice(rowIdx * 2, rowIdx * 2 + 2);
+                const pair = favoriteRoutes.slice(rowIdx * 2, rowIdx * 2 + 2);
                 return (
                   <View key={rowIdx} style={sharedStyles.row}>
                     {pair.map((route, i) => (
@@ -53,9 +85,10 @@ export default function Index() {
                         style={[sharedStyles.flexOne, styles.padding]}
                       >
                         <FavoriteRoute
-                          key={i}
-                          start={route.start}
-                          end={route.end}
+                          route={route}
+                          start={route.startPlaceName}
+                          end={route.endPlaceName}
+                          onRemove={() => handleFavoriteDelete(route)}
                         />
                       </View>
                     ))}
