@@ -1,19 +1,23 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
-import SearchLog from "@/components/common/SearchLog";
-import { useRouter } from "expo-router";
+import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import SearchLog from '@/components/common/SearchLog';
+import { useRouter } from 'expo-router';
 
 export default function BusLog({
   bus,
   routePath,
+  onClose,
+  onPress,
 }: {
   bus: string;
   routePath: string;
+  onClose: () => void;
+  onPress: () => void;
 }) {
   const router = useRouter();
   return (
     <View>
-      <SearchLog onPress={() => router.navigate("/busDetailPage")}>
+      <SearchLog onPress={onPress} onClose={() => onClose()}>
         <Text style={styles.logText}>
           <View>
             <Text style={styles.busText}>{bus}</Text>
@@ -30,7 +34,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   busText: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 16,
   },
   routePathText: {

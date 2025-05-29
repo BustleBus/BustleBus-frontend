@@ -1,13 +1,17 @@
-import { StyleSheet, Text, View } from "react-native";
-import ListItemBox from "@/components/common/ListItemBox";
-import { useRouter } from "expo-router";
+import { StyleSheet, Text, View } from 'react-native';
+import ListItemBox from '@/components/common/ListItemBox';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
 
 export default function SearchBusResult({
   bus,
   routePath,
+  onPress,
 }: {
   bus: string;
   routePath: string;
+  onPress?: () => void;
 }) {
   const router = useRouter();
   return (
@@ -15,11 +19,12 @@ export default function SearchBusResult({
       <ListItemBox
         showClose={false}
         onPress={() => {
-          router.navigate("/busDetailPage");
+          onPress?.();
+          router.navigate('/busDetailPage');
         }}
       >
         <View>
-          <Text style={{ fontWeight: "bold" }}>{bus}</Text>
+          <Text style={{ fontWeight: 'bold' }}>{bus}</Text>
           <Text>{routePath}</Text>
         </View>
       </ListItemBox>
