@@ -24,10 +24,10 @@ export default function BusTimeTable() {
         <Text style={styles.headerText}>종점발</Text>
       </View>
       {timeTable &&
-        timeTable.map((start, index) => (
+        timeTable.map(([start, end], index) => (
           <View key={index} style={styles.row}>
             <Text style={styles.time}>{start}</Text>
-            <Text style={styles.time}>{start}</Text>
+            <Text style={styles.time}>{end}</Text>
           </View>
         ))}
     </ScrollView>

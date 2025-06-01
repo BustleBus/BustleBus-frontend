@@ -31,18 +31,16 @@ export default function MainLayout() {
         setSearchRoute(route);
 
         const favoriteString = await AsyncStorage.getItem("routeFavorite");
-        const favorite = favoriteString
-          ? (JSON.parse(favoriteString) as SearchRoute[])
-          : [];
+        const favorite = favoriteString ? (JSON.parse(favoriteString) as SearchRoute[]) : [];
 
         const exists = favorite.some(
-          (item) =>
+          item =>
             item.startPlaceName === route.startPlaceName &&
             item.endPlaceName === route.endPlaceName &&
             item.startX === route.startX &&
             item.startY === route.startY &&
             item.endX === route.endX &&
-            item.endY === route.endY,
+            item.endY === route.endY
         );
 
         setIsFavorited(exists);
@@ -58,24 +56,22 @@ export default function MainLayout() {
     if (!searchRoute) return;
 
     const favoriteString = await AsyncStorage.getItem("routeFavorite");
-    const favorite = favoriteString
-      ? (JSON.parse(favoriteString) as SearchRoute[])
-      : [];
+    const favorite = favoriteString ? (JSON.parse(favoriteString) as SearchRoute[]) : [];
 
     const exists = favorite.some(
-      (item) =>
+      item =>
         item.startPlaceName === searchRoute.startPlaceName &&
         item.endPlaceName === searchRoute.endPlaceName &&
         item.startX === searchRoute.startX &&
         item.startY === searchRoute.startY &&
         item.endX === searchRoute.endX &&
-        item.endY === searchRoute.endY,
+        item.endY === searchRoute.endY
     );
 
     let updatedFavorite: SearchRoute[];
     if (exists) {
       updatedFavorite = favorite.filter(
-        (item) =>
+        item =>
           !(
             item.startPlaceName === searchRoute.startPlaceName &&
             item.endPlaceName === searchRoute.endPlaceName &&
@@ -83,7 +79,7 @@ export default function MainLayout() {
             item.startY === searchRoute.startY &&
             item.endX === searchRoute.endX &&
             item.endY === searchRoute.endY
-          ),
+          )
       );
       setIsFavorited(false);
     } else {
@@ -91,10 +87,7 @@ export default function MainLayout() {
       setIsFavorited(true);
     }
 
-    await AsyncStorage.setItem(
-      "routeFavorite",
-      JSON.stringify(updatedFavorite),
-    );
+    await AsyncStorage.setItem("routeFavorite", JSON.stringify(updatedFavorite));
   };
 
   const shorten = (text: string | undefined, maxLen = 6) => {
@@ -107,33 +100,22 @@ export default function MainLayout() {
       screenOptions={{
         headerTitle: () => (
           <View>
-            <Text
-              style={{ fontSize: 16 }}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {shorten(searchRoute?.startPlaceName)} →{" "}
-              {shorten(searchRoute?.endPlaceName)}
+            <Text style={{ fontSize: 16 }} numberOfLines={1} ellipsizeMode="tail">
+              {shorten(searchRoute?.startPlaceName)} → {shorten(searchRoute?.endPlaceName)}
             </Text>
           </View>
         ),
         headerTitleAlign: "left",
 
         headerLeft: () => (
-          <TouchableOpacity
-            onPressIn={() => router.back()}
-            style={{ paddingHorizontal: 12 }}
-          >
+          <TouchableOpacity onPressIn={() => router.back()} style={{ paddingHorizontal: 12 }}>
             <Ionicons name="arrow-back" size={24} />
           </TouchableOpacity>
         ),
 
         headerRight: () => (
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={toggleFavorite}
-              style={{ paddingHorizontal: 12 }}
-            >
+            <TouchableOpacity onPress={toggleFavorite} style={{ paddingHorizontal: 12 }}>
               <Ionicons
                 name={isFavorited ? "star" : "star-outline"}
                 size={24}

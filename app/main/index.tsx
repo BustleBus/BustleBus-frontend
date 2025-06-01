@@ -1,10 +1,4 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Divider } from "react-native-paper";
 import FavoriteRoute from "@/components/main/FavoriteRoute";
 import FavoriteBus from "@/components/main/FavoriteBus";
@@ -13,6 +7,11 @@ import { sharedStyles } from "@/styles/shared";
 import { useCallback, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
+
+type FavoriteBusItem = {
+  busNumber: string;
+  busOrigin?: string;
+};
 
 type FavoriteRouteItem = {
   startPlaceName: string;
@@ -25,17 +24,25 @@ type FavoriteRouteItem = {
 
 export default function Index() {
   const [favoriteRoutes, setFavoriteRoutes] = useState<FavoriteRouteItem[]>([]);
+  const [favoriteBuses, setFavoriteBuses] = useState<FavoriteBusItem[]>([]);
   const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
       const loadFavorites = async () => {
         try {
-          const jsonString = await AsyncStorage.getItem("routeFavorite");
-          if (jsonString) {
-            const parsed = JSON.parse(jsonString);
-            console.log(parsed);
-            setFavoriteRoutes(parsed);
+          // Load route favorites
+          const routeJson = await AsyncStorage.getItem("routeFavorite");
+          if (routeJson) {
+            const parsedRoutes = JSON.parse(routeJson);
+            setFavoriteRoutes(parsedRoutes);
+          }
+
+          // Load bus favorites
+          const busJson = await AsyncStorage.getItem("busFavorite");
+          if (busJson) {
+            const parsedBuses = JSON.parse(busJson);
+            setFavoriteBuses(parsedBuses);
           }
         } catch (e) {
           console.error("❌ 즐겨찾기 로드 실패:", e);
@@ -43,12 +50,12 @@ export default function Index() {
       };
 
       loadFavorites();
-    }, []),
+    }, [])
   );
 
   const handleFavoriteDelete = async (route: FavoriteRouteItem) => {
     const updated = favoriteRoutes.filter(
-      (item) => !(item.startX === route.startX && item.endX === route.endX),
+      item => !(item.startX === route.startX && item.endX === route.endX)
     );
     setFavoriteRoutes(updated);
     await AsyncStorage.setItem("routeFavorite", JSON.stringify(updated));
@@ -63,10 +70,7 @@ export default function Index() {
           >
             <Text>경로검색</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.menuButton}
-            onPress={() => router.navigate("/searchBus")}
-          >
+          <TouchableOpacity style={styles.menuButton} onPress={() => router.navigate("/searchBus")}>
             <Text>버스번호 검색</Text>
           </TouchableOpacity>
         </View>
@@ -74,40 +78,50 @@ export default function Index() {
           <Text style={styles.sectionTitle}>경로 즐겨 찾기</Text>
           <Divider style={styles.divider} />
           <View style={sharedStyles.column}>
-            {Array.from({ length: Math.ceil(favoriteRoutes.length / 2) }).map(
-              (_, rowIdx) => {
-                const pair = favoriteRoutes.slice(rowIdx * 2, rowIdx * 2 + 2);
-                return (
-                  <View key={rowIdx} style={sharedStyles.row}>
-                    {pair.map((route, i) => (
-                      <View
-                        key={i}
-                        style={[sharedStyles.flexOne, styles.padding]}
-                      >
-                        <FavoriteRoute
-                          route={route}
-                          start={route.startPlaceName}
-                          end={route.endPlaceName}
-                          onRemove={() => handleFavoriteDelete(route)}
-                        />
-                      </View>
-                    ))}
-                  </View>
-                );
-              },
-            )}
+            {Array.from({ length: Math.ceil(favoriteRoutes.length / 2) }).map((_, rowIdx) => {
+              const pair = favoriteRoutes.slice(rowIdx * 2, rowIdx * 2 + 2);
+              return (
+                <View key={rowIdx} style={sharedStyles.row}>
+                  {pair.map((route, i) => (
+                    <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
+                      <FavoriteRoute
+                        route={route}
+                        start={route.startPlaceName}
+                        end={route.endPlaceName}
+                        onRemove={() => handleFavoriteDelete(route)}
+                      />
+                    </View>
+                  ))}
+                </View>
+              );
+            })}
           </View>
         </View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>버스번호 즐겨찾기</Text>
           <Divider style={styles.divider} />
-          <View style={sharedStyles.row}>
-            <View style={[sharedStyles.flexOne, styles.padding]}>
-              <FavoriteBus>130번</FavoriteBus>
-            </View>
-            <View style={[sharedStyles.flexOne, styles.padding]}>
-              <FavoriteBus>60번</FavoriteBus>
-            </View>
+          <View style={sharedStyles.column}>
+            {Array.from({ length: Math.ceil(favoriteBuses.length / 2) }).map((_, rowIdx) => {
+              const pair = favoriteBuses.slice(rowIdx * 2, rowIdx * 2 + 2);
+              return (
+                <View key={rowIdx} style={sharedStyles.row}>
+                  {pair.map((bus, i) => (
+                    <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
+                      <FavoriteBus
+                        onPress={() => {
+                          console.log("Bus selected:", bus);
+                        }}
+                      >
+                        {bus.busNo}번
+                      </FavoriteBus>
+                    </View>
+                  ))}
+                </View>
+              );
+            })}
+            {favoriteBuses.length === 0 && (
+              <Text style={styles.emptyText}>저장된 버스가 없습니다</Text>
+            )}
           </View>
         </View>
       </View>
@@ -142,6 +156,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 10,
     height: 2,
+  },
+  emptyText: {
+    textAlign: "center",
+    marginTop: 10,
+    color: "#666",
   },
   sectionTitle: {
     fontSize: 15,

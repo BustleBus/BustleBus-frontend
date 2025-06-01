@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, Modal, Text, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
@@ -7,6 +7,11 @@ import SearchResultListItems from "@/components/searchRouterResult/SearchResultL
 
 export default function SearchResultRoute() {
   const [data, setData] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedBuses, setSelectedBuses] = useState<{
+    firstBus: string;
+    secondBus: string | null;
+  }>({ firstBus: "", secondBus: null });
 
   useEffect(() => {
     const getData = async () => {
@@ -19,18 +24,24 @@ export default function SearchResultRoute() {
         }
 
         const { startX, startY, endX, endY } = JSON.parse(selectedBusString);
-        console.log(startX, startY, endX, endY);
         if (!startX || !startY || !endX || !endY) {
           console.warn("❗ 필수 좌표 데이터가 누락되었습니다.");
           return;
         }
 
         const response = await axios.get(
-          `http://takaoracle2.duckdns.org:5000/api/v1/searchBusRoutes?SX=${startX}&SY=${startY}&EX=${endX}&EY=${endY}`,
+          `https://bustlebus.duckdns.org/api/v1/searchBusRoutes?SX=${startX}&SY=${startY}&EX=${endX}&EY=${endY}`
         );
 
-        console.log("✅ 버스 경로 응답:", response.data.result);
-        setData(response.data.result);
+        const routeList = response?.data?.result?.result;
+
+        if (!Array.isArray(routeList)) {
+          console.warn("❗ 응답 데이터 형식이 올바르지 않습니다.");
+          return;
+        }
+
+        console.log("✅ 버스 경로 응답:", routeList);
+        setData(routeList);
       } catch (error) {
         console.error("❌ 버스 경로 요청 실패:", error);
       }
@@ -40,70 +51,138 @@ export default function SearchResultRoute() {
   }, []);
 
   return (
-    <ScrollView>
-      <View style={styles.container}>
-        {data.map((route, index) =>
-          route.busSubPaths.length === 1 ? (
-            <SearchResultListItem
-              key={index}
-              time={`${route.totalTime}분`}
-              bus={`${route.busSubPaths[0].busNo}`}
-              crowdLevel=""
-            />
-          ) : (
-            <SearchResultListItems
-              key={index}
-              time={`${route.totalTime}분`}
-              firstBus={`${route.busSubPaths[0].busNo}`}
-              secondBus={`${route.busSubPaths[1].busNo}`}
-              crowdLevel=""
-            />
-          ),
-        )}
-      </View>
-    </ScrollView>
+    <>
+      <ScrollView>
+        <View style={styles.container}>
+          {data.map((route, index) =>
+            route.busSubPaths.length === 1 ? (
+              <SearchResultListItem
+                key={index}
+                time={`${route.totalTime}분`}
+                bus={`${route.busSubPaths[0].busOrigin}`}
+                crowdLevel=""
+                busNo={`${route.busSubPaths[0].busNo}`}
+              />
+            ) : (
+              <SearchResultListItems
+                key={index}
+                time={`${route.totalTime}분`}
+                firstBus={`${route.busSubPaths[0].busOrigin}`}
+                secondBus={`${route.busSubPaths[1]?.busOrigin ?? "?"}`}
+                crowdLevel=""
+                onPress={(firstBus, secondBus) => {
+                  setSelectedBuses({ firstBus, secondBus });
+                  console.log("ModalVisible: true");
+                  setModalVisible(true);
+                }}
+              />
+            )
+          )}
+        </View>
+      </ScrollView>
+
+      {/* Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>탑승할 버스를 선택하세요</Text>
+
+            <TouchableOpacity
+              style={styles.busOptionButton}
+              onPress={() => {
+                console.log("선택한 버스:", selectedBuses.firstBus);
+                setModalVisible(false);
+              }}
+            >
+              <Text style={styles.busText}>🚌 {selectedBuses.firstBus}</Text>
+            </TouchableOpacity>
+
+            {selectedBuses.secondBus && (
+              <TouchableOpacity
+                style={styles.busOptionButton}
+                onPress={() => {
+                  console.log("선택한 버스:", selectedBuses.secondBus);
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={styles.busText}>🚌 {selectedBuses.secondBus}</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
+              <Text style={styles.cancelText}>취소</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
-  card: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    borderRadius: 16,
-    borderColor: "black",
+
+  modalContent: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    paddingBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 20,
+    color: "#333",
+    textAlign: "center",
+  },
+
+  busOptionButton: {
+    backgroundColor: "#f0f0f5",
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    width: "100%",
+    marginBottom: 10,
     alignItems: "center",
-    shadowOffset: { width: 0, height: 2 },
   },
-  leftSection: {
+
+  busText: {
+    fontSize: 16,
+    color: "#222",
+    fontWeight: "500",
+  },
+
+  cancelButton: {
+    marginTop: 8,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    width: "100%",
     alignItems: "center",
   },
-  rightSection: {
-    alignItems: "flex-end",
-  },
-  optimalText: {
-    color: "#555",
-    marginBottom: 4,
-    fontSize: 14,
-  },
-  timeText: {
-    color: "#555",
-    marginTop: 4,
-    fontSize: 14,
-  },
-  routeText: {
-    color: "#000",
-    fontSize: 16,
-  },
-  routeMultiView: {
-    color: "#000",
-    flexDirection: "column",
-  },
-  crowdText: {
-    color: "#d32f2f",
-    fontWeight: "bold",
-    fontSize: 16,
+
+  cancelText: {
+    color: "#888",
+    fontSize: 15,
+    fontWeight: "500",
   },
 });

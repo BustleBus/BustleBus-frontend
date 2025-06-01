@@ -2,80 +2,100 @@ import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native
 import { useEffect, useState, useRef } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const realTimeBusDummy = {
-  success: true,
-  result: [
-    {
-      nodeord: 15,
-      nodeid: "JJB381247008",
-      nodenm: "경상국립대학교가좌캠퍼스후문",
-      vehicleno: "경남71자5840",
-      congestionLevel: "정보 없음",
-    },
-    {
-      nodeord: 38,
-      nodeid: "JJB381239018",
-      nodenm: "경남서부보훈지청",
-      vehicleno: "경남71자5887",
-      congestionLevel: "정보 없음",
-    },
-  ],
-};
-
-const getRealTimeBusData = async () => {
-  // TODO: 실제 API 요청으로 대체 가능
-  return Promise.resolve(realTimeBusDummy);
-};
+import axios from "axios";
+import { router } from "expo-router";
 
 export default function BusDetailPage() {
-  const [direction, setDirection] = useState<"기점 방향" | "종점 방향">("기점 방향");
+  const [direction, setDirection] = useState<string>("");
+  const [selectedBus, setSelectedBus] = useState<any | null>(null);
   const [busStations, setBusStations] = useState<any[]>([]);
   const [reverseStations, setReverseStations] = useState<any[]>([]);
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const removeBrackets = (str: string) => str.replace(/\s*\(.*?\)\s*/g, "").trim();
 
-  const fetchInitialData = async () => {
-    try {
+  // 최초 1회: 선택한 버스 로딩
+  useEffect(() => {
+    const loadSelectedBus = async () => {
       const selectedBusString = await AsyncStorage.getItem("selectedBus");
       if (!selectedBusString) return;
+      const parsed = JSON.parse(selectedBusString);
+      setDirection(parsed?.busEndPoint);
+      if (Array.isArray(parsed?.stations)) {
+        setSelectedBus(parsed);
+      }
+    };
+    loadSelectedBus();
+  }, []);
 
-      const selectedBus = JSON.parse(selectedBusString);
-      if (!Array.isArray(selectedBus?.stations)) return;
+  // selectedBus가 로딩된 후: 실시간 버스 정보 갱신
+  useEffect(() => {
+    if (!selectedBus) return;
 
-      const enriched = selectedBus.stations.map(station => {
-        const bus = realTimeBusDummy.result.find(
-          b => b.nodenm === station.stationName || b.nodeord === Number(station.idx)
+    const updateRealTime = async () => {
+      try {
+        const cityCodeStr = await AsyncStorage.getItem("selectedCity");
+        if (!cityCodeStr) return;
+        const cityCode = JSON.parse(cityCodeStr).TagoCityCode;
+
+        const response = await axios.get(
+          `https://bustlebus.duckdns.org/api/v1/searchLocation?busNo=${selectedBus.busNo}&cityCode=${cityCode}`
         );
 
-        return {
-          ...station,
-          nodenm: station.stationName,
-          nodeord: Number(station.idx),
-          nodeid: bus?.nodeid,
-          vehicleno: bus?.vehicleno,
-          congestionLevel: bus?.congestionLevel,
-        };
-      });
+        console.log(response.data.result);
+        const realTimeData = response.data.result;
+        // 방향별 실시간 위치 추출
+        const startPointBuses =
+          realTimeData.find(r => removeBrackets(r.startNodeName) === selectedBus.busStartPoint)
+            ?.buses || [];
+        const endPointBuses =
+          realTimeData.find(r => removeBrackets(r.startNodeName) === selectedBus.busEndPoint)
+            ?.buses || [];
 
-      setBusStations(enriched);
-      setReverseStations([...enriched].reverse());
-      setLastUpdated(new Date().toLocaleTimeString());
-    } catch (error) {
-      console.error("Error loading bus stations:", error);
-    }
-  };
+        // 방향별 정류장 리스트 매핑
+        const startPointStations = selectedBus.stations.map(station => {
+          const bus = startPointBuses.find(b => removeBrackets(b.nodeName) === station.stationName);
+          return {
+            ...station,
+            nodenm: station.stationName,
+            nodeord: Number(station.idx),
+            nodeid: bus?.nodeId,
+            vehicleno: bus?.vehicleNo,
+            congestionLevel: bus ? "정보 없음" : undefined,
+            direction: "startPoint",
+          };
+        });
 
-  useEffect(() => {
-    fetchInitialData();
+        const endPointStations = selectedBus.stations.map(station => {
+          const bus = endPointBuses.find(b => removeBrackets(b.nodeName) === station.stationName);
+          return {
+            ...station,
+            nodenm: station.stationName,
+            nodeord: Number(station.idx),
+            nodeid: bus?.nodeId,
+            vehicleno: bus?.vehicleNo,
+            congestionLevel: bus ? "정보 없음" : undefined,
+            direction: "endPoint",
+          };
+        });
 
-    intervalRef.current = setInterval(() => {
-      fetchInitialData();
-    }, 10000);
+        // 상태 반영
+        setBusStations(startPointStations);
+        setReverseStations([...endPointStations].reverse());
+        setLastUpdated(new Date().toLocaleTimeString());
+      } catch (error) {
+        console.error("실시간 버스 정보 조회 오류:", error);
+      }
+    };
+
+    updateRealTime();
+
+    intervalRef.current = setInterval(updateRealTime, 10000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, []);
+  }, [selectedBus]);
 
   const renderItem = ({ item }: { item: any }) => {
     const hasBus = !!item.vehicleno;
@@ -100,35 +120,65 @@ export default function BusDetailPage() {
     );
   };
 
-  const stationsToShow = direction === "기점 방향" ? busStations : reverseStations;
+  const stationsToShow = direction === selectedBus?.busEndPoint ? busStations : reverseStations;
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.lastUpdated}>
-          {lastUpdated ? `마지막 업데이트: ${lastUpdated}` : "데이터 로드 중..."}
-        </Text>
-      </View>
-
       <View style={styles.toggleGroup}>
         <TouchableOpacity
-          style={[styles.toggleButton, direction === "기점 방향" && styles.activeButton]}
-          onPress={() => setDirection("기점 방향")}
+          style={[
+            styles.toggleButton,
+            direction === selectedBus?.busEndPoint && styles.activeButton,
+          ]}
+          onPress={() => setDirection(selectedBus?.busEndPoint)}
         >
-          <Text style={[styles.buttonText, direction === "기점 방향" && styles.activeButtonText]}>
-            기점 방향
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[
+              styles.buttonText,
+              direction === selectedBus?.busEndPoint && styles.activeButtonText,
+            ]}
+          >
+            {`${selectedBus?.busEndPoint} `}방향
           </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
-          style={[styles.toggleButton, direction === "종점 방향" && styles.activeButton]}
-          onPress={() => setDirection("종점 방향")}
+          style={[
+            styles.toggleButton,
+            direction === selectedBus?.busStartPoint && styles.activeButton,
+          ]}
+          onPress={() => setDirection(selectedBus?.busStartPoint)}
         >
-          <Text style={[styles.buttonText, direction === "종점 방향" && styles.activeButtonText]}>
-            종점 방향
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[
+              styles.buttonText,
+              direction === selectedBus?.busStartPoint && styles.activeButtonText,
+            ]}
+          >
+            {`${selectedBus?.busStartPoint} `}방향
           </Text>
         </TouchableOpacity>
       </View>
-
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          paddingHorizontal: 20,
+          paddingBottom: 10,
+        }}
+      >
+        <TouchableOpacity
+          onPressIn={() => {
+            router.push("/busTimeTable");
+          }}
+        >
+          <Text style={styles.timeTableButton}>버스 시간표</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={stationsToShow}
         renderItem={renderItem}
@@ -143,55 +193,89 @@ export default function BusDetailPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#F8F5FF",
   },
   header: {
-    padding: 15,
-    backgroundColor: "#fff",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e0e0",
+    padding: 20,
+    backgroundColor: "#FFFFFF",
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: "#7E57C2",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
   lastUpdated: {
     textAlign: "right",
     fontSize: 12,
-    color: "#666",
+    color: "#9E9E9E",
+    fontFamily: "System",
+    fontWeight: "500",
   },
   toggleGroup: {
     flexDirection: "row",
-    margin: 16,
+    margin: 20,
+    marginBottom: 12,
     borderRadius: 50,
     backgroundColor: "#EDE7F6",
     overflow: "hidden",
+    elevation: 2,
+    shadowColor: "#7E57C2",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   toggleButton: {
+    paddingHorizontal: 10,
     flex: 1,
-    padding: 12,
+    paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: "#EDE7F6",
     borderRadius: 50,
   },
   activeButton: {
-    backgroundColor: "#D1C4E9",
+    backgroundColor: "#7E57C2",
+    shadowColor: "#7E57C2",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   buttonText: {
     fontSize: 14,
-    color: "#333",
-    fontWeight: "bold",
+    color: "#7E57C2",
+    fontWeight: "600",
+    fontFamily: "System",
   },
   activeButtonText: {
-    color: "#fff",
+    color: "#FFFFFF",
+    fontWeight: "700",
   },
   listContent: {
-    padding: 16,
+    paddingHorizontal: 16,
     paddingBottom: 24,
   },
   stationItem: {
     flexDirection: "row",
-    paddingVertical: 12,
-    backgroundColor: "#fff",
+    padding: 16,
+    marginBottom: 8,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    elevation: 1,
+    shadowColor: "#7E57C2",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: "#F3EBFF",
   },
   stationWithBus: {
-    backgroundColor: "#f8f9ff",
+    backgroundColor: "#F3EBFF",
+    borderLeftWidth: 4,
+    borderLeftColor: "#7E57C2",
+    marginLeft: 20,
+    elevation: 2,
   },
   stationMarker: {
     width: 40,
@@ -202,45 +286,70 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: "#007AFF",
+    backgroundColor: "#7E57C2",
     marginBottom: 4,
+    borderWidth: 2,
+    borderColor: "#F3E5F5",
+    zIndex: 2,
   },
   stationDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#ccc",
+    backgroundColor: "#D1C4E9",
     borderWidth: 2,
-    borderColor: "#fff",
+    borderColor: "#F8F5FF",
+    zIndex: 1,
   },
   stationLine: {
     position: "absolute",
     left: 19,
     top: 24,
-    bottom: -12,
+    bottom: -16,
     width: 2,
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#E1BEE7",
+    zIndex: 0,
   },
   stationInfo: {
     flex: 1,
   },
   stationName: {
     fontSize: 16,
-    color: "#333",
-    marginBottom: 4,
+    color: "#2D2D2D",
+    marginBottom: 6,
+    fontWeight: "600",
+    fontFamily: "System",
   },
   busInfoContainer: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#F3E5F5",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginTop: 4,
   },
   busNumber: {
     fontSize: 14,
-    color: "#007AFF",
+    color: "#7E57C2",
     marginRight: 8,
-    fontWeight: "500",
+    fontWeight: "700",
+    fontFamily: "System",
   },
   congestionLevel: {
     fontSize: 12,
-    color: "#666",
+    color: "#7E57C2",
+    fontFamily: "System",
+    fontWeight: "500",
+  },
+  timeTableButton: {
+    borderColor: "#333",
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    fontWeight: "bold",
+    fontSize: 10,
+    color: "#333",
   },
 });
