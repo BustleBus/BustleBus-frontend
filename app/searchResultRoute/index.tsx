@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import SearchResultListItem from "@/components/searchRouterResult/SearchResultListItem";
 import SearchResultListItems from "@/components/searchRouterResult/SearchResultListItems";
+import { useRouter } from "expo-router";
 
 export default function SearchResultRoute() {
   const [data, setData] = useState([]);
@@ -12,7 +13,24 @@ export default function SearchResultRoute() {
     firstBus: string;
     secondBus: string | null;
   }>({ firstBus: "", secondBus: null });
+  const fetchBusData = async (busNo: string) => {
+    const cityCode = await AsyncStorage.getItem("selectedCity");
+    if (!cityCode) {
+      console.error("도시 정보를 찾을 수 없습니다.");
+      return;
+    }
+    const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
+    const response = await axios.get(
+      `https://bustlebus.duckdns.org/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
+    );
 
+    console.log("API 응답 데이터:", response.data.result[0]);
+    await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
+    console.log("저장됨");
+    router.navigate("/busDetailPage");
+  };
+  const router = useRouter();
+  const removeBrackets = (str: string) => str.replace(/\s*\(.*?\)\s*/g, "").trim();
   useEffect(() => {
     const getData = async () => {
       try {
@@ -72,7 +90,6 @@ export default function SearchResultRoute() {
                 crowdLevel=""
                 onPress={(firstBus, secondBus) => {
                   setSelectedBuses({ firstBus, secondBus });
-                  console.log("ModalVisible: true");
                   setModalVisible(true);
                 }}
               />
@@ -95,8 +112,8 @@ export default function SearchResultRoute() {
             <TouchableOpacity
               style={styles.busOptionButton}
               onPress={() => {
-                console.log("선택한 버스:", selectedBuses.firstBus);
                 setModalVisible(false);
+                fetchBusData(removeBrackets(selectedBuses.firstBus));
               }}
             >
               <Text style={styles.busText}>🚌 {selectedBuses.firstBus}</Text>
@@ -106,8 +123,8 @@ export default function SearchResultRoute() {
               <TouchableOpacity
                 style={styles.busOptionButton}
                 onPress={() => {
-                  console.log("선택한 버스:", selectedBuses.secondBus);
                   setModalVisible(false);
+                  fetchBusData(removeBrackets(selectedBuses.secondBus));
                 }}
               >
                 <Text style={styles.busText}>🚌 {selectedBuses.secondBus}</Text>
