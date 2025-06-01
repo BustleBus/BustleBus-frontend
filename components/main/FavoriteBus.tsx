@@ -4,11 +4,13 @@ import ListItemBox from "@/components/common/ListItemBox";
 
 export default function FavoriteBus({
   children,
+  onPress,
 }: {
   children: React.ReactNode;
+  onPress: () => void;
 }) {
   return (
-    <ListItemBox>
+    <ListItemBox onPress={onPress}>
       <Text>{children}</Text>
     </ListItemBox>
   );

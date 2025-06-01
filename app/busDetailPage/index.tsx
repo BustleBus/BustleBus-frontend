@@ -1,36 +1,126 @@
-import {
-  FlatList,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { useState } from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState, useRef } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+import axios from "axios";
+import { router } from "expo-router";
 
 export default function BusDetailPage() {
-  const [value, setValue] = useState("기점 방향");
+  const [direction, setDirection] = useState<string>("");
+  const [selectedBus, setSelectedBus] = useState<any | null>(null);
+  const [busStations, setBusStations] = useState<any[]>([]);
+  const [reverseStations, setReverseStations] = useState<any[]>([]);
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const removeBrackets = (str: string) => str.replace(/\s*\(.*?\)\s*/g, "").trim();
 
-  const stops = [
-    { name: "정류장1", status: "원활", color: "#0000FF" },
-    { name: "정류장2", status: "", color: "#000" },
-    { name: "정류장3", status: "", color: "#000" },
-    { name: "정류장4", status: "", color: "#000" },
-    { name: "정류장5", status: "혼잡", color: "#FF0000" },
-    { name: "정류장6", status: "", color: "#000" },
-    { name: "정류장6", status: "원활", color: "#0000FF" },
-    { name: "정류장5", status: "", color: "#000" },
-    { name: "정류장4", status: "", color: "#000" },
-    { name: "정류장3", status: "", color: "#000" },
-    { name: "정류장2", status: "복잡", color: "#FFA500" },
+  // 최초 1회: 선택한 버스 로딩
+  useEffect(() => {
+    const loadSelectedBus = async () => {
+      const selectedBusString = await AsyncStorage.getItem("selectedBus");
+      if (!selectedBusString) return;
+      const parsed = JSON.parse(selectedBusString);
+      setDirection(parsed?.busEndPoint);
+      if (Array.isArray(parsed?.stations)) {
+        setSelectedBus(parsed);
+      }
+    };
+    loadSelectedBus();
+  }, []);
 
-    { name: "정류장1", status: "", color: "#000" },
-    { name: "정류장1", status: "", color: "#000" },
-    { name: "정류장1", status: "", color: "#000" },
-    { name: "정류장1", status: "", color: "#000" },
-    { name: "정류장1", status: "", color: "#000" },
-    { name: "정류장1", status: "", color: "#000" },
-  ];
+  // selectedBus가 로딩된 후: 실시간 버스 정보 갱신
+  useEffect(() => {
+    if (!selectedBus) return;
+
+    const updateRealTime = async () => {
+      try {
+        const cityCodeStr = await AsyncStorage.getItem("selectedCity");
+        if (!cityCodeStr) return;
+        const cityCode = JSON.parse(cityCodeStr).TagoCityCode;
+
+        const response = await axios.get(
+          `https://bustlebus.duckdns.org/api/v1/searchLocation?busNo=${selectedBus.busNo}&cityCode=${cityCode}`
+        );
+
+        console.log(response.data.result);
+        const realTimeData = response.data.result;
+        // 방향별 실시간 위치 추출
+        const startPointBuses =
+          realTimeData.find(r => removeBrackets(r.startNodeName) === selectedBus.busStartPoint)
+            ?.buses || [];
+        const endPointBuses =
+          realTimeData.find(r => removeBrackets(r.startNodeName) === selectedBus.busEndPoint)
+            ?.buses || [];
+
+        // 방향별 정류장 리스트 매핑
+        const startPointStations = selectedBus.stations.map(station => {
+          const bus = startPointBuses.find(b => removeBrackets(b.nodeName) === station.stationName);
+          return {
+            ...station,
+            nodenm: station.stationName,
+            nodeord: Number(station.idx),
+            nodeid: bus?.nodeId,
+            vehicleno: bus?.vehicleNo,
+            congestionLevel: bus ? "정보 없음" : undefined,
+            direction: "startPoint",
+          };
+        });
+
+        const endPointStations = selectedBus.stations.map(station => {
+          const bus = endPointBuses.find(b => removeBrackets(b.nodeName) === station.stationName);
+          return {
+            ...station,
+            nodenm: station.stationName,
+            nodeord: Number(station.idx),
+            nodeid: bus?.nodeId,
+            vehicleno: bus?.vehicleNo,
+            congestionLevel: bus ? "정보 없음" : undefined,
+            direction: "endPoint",
+          };
+        });
+
+        // 상태 반영
+        setBusStations(startPointStations);
+        setReverseStations([...endPointStations].reverse());
+        setLastUpdated(new Date().toLocaleTimeString());
+      } catch (error) {
+        console.error("실시간 버스 정보 조회 오류:", error);
+      }
+    };
+
+    updateRealTime();
+
+    intervalRef.current = setInterval(updateRealTime, 10000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [selectedBus]);
+
+  const renderItem = ({ item }: { item: any }) => {
+    const hasBus = !!item.vehicleno;
+
+    return (
+      <View style={[styles.stationItem, hasBus && styles.stationWithBus]}>
+        <View style={styles.stationMarker}>
+          {hasBus && <View style={styles.busIndicator} />}
+          <View style={styles.stationDot} />
+          {!hasBus && <View style={styles.stationLine} />}
+        </View>
+        <View style={styles.stationInfo}>
+          <Text style={styles.stationName}>{item.nodenm || `정류장 ${item.nodeord}`}</Text>
+          {hasBus && (
+            <View style={styles.busInfoContainer}>
+              <Text style={styles.busNumber}>{item.vehicleno}</Text>
+              <Text style={styles.congestionLevel}>{item.congestionLevel || "정보 없음"}</Text>
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
+
+  const stationsToShow = direction === selectedBus?.busEndPoint ? busStations : reverseStations;
 
   return (
     <View style={styles.container}>
@@ -38,47 +128,63 @@ export default function BusDetailPage() {
         <TouchableOpacity
           style={[
             styles.toggleButton,
-            value === "기점 방향" && styles.activeButton,
+            direction === selectedBus?.busEndPoint && styles.activeButton,
           ]}
-          onPress={() => setValue("기점 방향")}
+          onPress={() => setDirection(selectedBus?.busEndPoint)}
         >
-          <Text style={styles.buttonText}>기점 방향</Text>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[
+              styles.buttonText,
+              direction === selectedBus?.busEndPoint && styles.activeButtonText,
+            ]}
+          >
+            {`${selectedBus?.busEndPoint} `}방향
+          </Text>
         </TouchableOpacity>
+
         <TouchableOpacity
           style={[
             styles.toggleButton,
-            value === "종점 방향" && styles.activeButton,
+            direction === selectedBus?.busStartPoint && styles.activeButton,
           ]}
-          onPress={() => setValue("종점 방향")}
+          onPress={() => setDirection(selectedBus?.busStartPoint)}
         >
-          <Text style={styles.buttonText}>종점 방향</Text>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={[
+              styles.buttonText,
+              direction === selectedBus?.busStartPoint && styles.activeButtonText,
+            ]}
+          >
+            {`${selectedBus?.busStartPoint} `}방향
+          </Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.header}>
-        <Text style={styles.realTimeBusCount}>현재 3대 운행중</Text>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          paddingHorizontal: 20,
+          paddingBottom: 10,
+        }}
+      >
+        <TouchableOpacity
+          onPressIn={() => {
+            router.push("/busTimeTable");
+          }}
+        >
+          <Text style={styles.timeTableButton}>버스 시간표</Text>
+        </TouchableOpacity>
       </View>
       <FlatList
-        data={stops}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.stopContainer}>
-            <Text style={styles.stopName}>{item.name}</Text>
-            {item.status !== "" && (
-              <MaterialCommunityIcons
-                name="bus"
-                size={24}
-                color="#333"
-                style={styles.busIcon}
-              />
-            )}
-
-            {item.status !== "" && (
-              <Text style={[styles.statusText, { color: item.color }]}>
-                {item.status}
-              </Text>
-            )}
-          </View>
-        )}
+        data={stationsToShow}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => `station-${index}`}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );
@@ -86,63 +192,164 @@ export default function BusDetailPage() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: "#F8EFFF",
+    flex: 1,
+    backgroundColor: "#F8F5FF",
   },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 20,
-    paddingHorizontal: 10,
-    marginVertical: -15,
+    padding: 20,
+    backgroundColor: "#FFFFFF",
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    marginBottom: 8,
+    elevation: 2,
+    shadowColor: "#7E57C2",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  realTimeBusCount: {
-    marginLeft: "auto",
-    fontSize: 14,
-    color: "#333",
+  lastUpdated: {
+    textAlign: "right",
+    fontSize: 12,
+    color: "#9E9E9E",
+    fontFamily: "System",
+    fontWeight: "500",
   },
   toggleGroup: {
     flexDirection: "row",
-    backgroundColor: "#EDE7F6",
+    margin: 20,
+    marginBottom: 12,
     borderRadius: 50,
-    padding: 5,
-    marginBottom: 20,
+    backgroundColor: "#EDE7F6",
+    overflow: "hidden",
+    elevation: 2,
+    shadowColor: "#7E57C2",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   toggleButton: {
+    paddingHorizontal: 10,
     flex: 1,
-    borderRadius: 50,
     paddingVertical: 10,
     alignItems: "center",
-    backgroundColor: "#EDE7F6",
+    borderRadius: 50,
   },
   activeButton: {
-    backgroundColor: "#D1C4E9",
+    backgroundColor: "#7E57C2",
+    shadowColor: "#7E57C2",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
   },
   buttonText: {
-    color: "#333",
-    fontWeight: "bold",
+    fontSize: 14,
+    color: "#7E57C2",
+    fontWeight: "600",
+    fontFamily: "System",
   },
-
-  stopContainer: {
-    marginVertical: 10,
+  activeButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  stationItem: {
+    flexDirection: "row",
+    padding: 16,
+    marginBottom: 8,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    elevation: 1,
+    shadowColor: "#7E57C2",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    borderWidth: 1,
+    borderColor: "#F3EBFF",
+  },
+  stationWithBus: {
+    backgroundColor: "#F3EBFF",
+    borderLeftWidth: 4,
+    borderLeftColor: "#7E57C2",
+    marginLeft: 20,
+    elevation: 2,
+  },
+  stationMarker: {
+    width: 40,
+    alignItems: "center",
+    marginRight: 12,
+  },
+  busIndicator: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: "#7E57C2",
+    marginBottom: 4,
+    borderWidth: 2,
+    borderColor: "#F3E5F5",
+    zIndex: 2,
+  },
+  stationDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    backgroundColor: "#D1C4E9",
+    borderWidth: 2,
+    borderColor: "#F8F5FF",
+    zIndex: 1,
+  },
+  stationLine: {
+    position: "absolute",
+    left: 19,
+    top: 24,
+    bottom: -16,
+    width: 2,
+    backgroundColor: "#E1BEE7",
+    zIndex: 0,
+  },
+  stationInfo: {
+    flex: 1,
+  },
+  stationName: {
+    fontSize: 16,
+    color: "#2D2D2D",
+    marginBottom: 6,
+    fontWeight: "600",
+    fontFamily: "System",
+  },
+  busInfoContainer: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#D3C4E9",
+    backgroundColor: "#F3E5F5",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    alignSelf: "flex-start",
+    marginTop: 4,
   },
-  stopName: {
-    flex: 1,
-    fontSize: 16,
-    color: "#333",
+  busNumber: {
+    fontSize: 14,
+    color: "#7E57C2",
+    marginRight: 8,
+    fontWeight: "700",
+    fontFamily: "System",
   },
-  busIcon: {
-    marginRight: 10,
+  congestionLevel: {
+    fontSize: 12,
+    color: "#7E57C2",
+    fontFamily: "System",
+    fontWeight: "500",
   },
-  statusText: {
-    fontSize: 16,
+  timeTableButton: {
+    borderColor: "#333",
+    borderWidth: 1,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     fontWeight: "bold",
+    fontSize: 10,
+    color: "#333",
   },
 });

@@ -1,38 +1,50 @@
-import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ListItemBox from "@/components/common/ListItemBox";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from "axios";
+import { useRouter } from "expo-router";
+
+interface SearchResultListItemsProps {
+  time: string;
+  firstBus: string;
+  secondBus: string;
+  crowdLevel: string;
+  onPress: (firstBus: string, secondBus: string) => void;
+}
 
 export default function SearchResultListItems({
   time,
   firstBus,
   secondBus,
   crowdLevel,
-}: {
-  time: string;
-  firstBus: string;
-  secondBus: string;
-  crowdLevel: string;
-}) {
+  onPress,
+}: SearchResultListItemsProps) {
   return (
-    <View style={styles.container}>
-      <ListItemBox showClose={false}>
-        <View style={styles.card}>
-          <View style={styles.leftSection}>
-            <Text style={styles.optimalText}>최적</Text>
-            <MaterialCommunityIcons name="bus" size={20} color="black" />
-            <Text style={styles.timeText}>{time}</Text>
-          </View>
-          <View>
-            <View style={styles.routeMultiView}>
-              <Text>{firstBus}</Text>
-              <Text>{secondBus}</Text>
+    <View style={{ flex: 1 }}>
+      <TouchableOpacity activeOpacity={0.8}>
+        <View style={styles.container}>
+          <ListItemBox showClose={false} onPress={() => onPress(firstBus, secondBus)}>
+            <View style={styles.card}>
+              <View style={styles.leftSection}>
+                <Text style={styles.optimalText}>최적</Text>
+                <MaterialCommunityIcons name="bus" size={20} color="black" />
+                <Text style={styles.timeText}>{time}</Text>
+              </View>
+              <View>
+                <View style={styles.routeMultiView}>
+                  <Text>{firstBus}</Text>
+                  <Text>{secondBus}</Text>
+                </View>
+              </View>
+              <View style={styles.rightSection}>
+                <Text style={styles.crowdText}>{crowdLevel}</Text>
+              </View>
             </View>
-          </View>
-          <View style={styles.rightSection}>
-            <Text style={styles.crowdText}>{crowdLevel}</Text>
-          </View>
+          </ListItemBox>
         </View>
-      </ListItemBox>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -78,5 +90,13 @@ const styles = StyleSheet.create({
     color: "#d32f2f",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  modalButton: {
+    backgroundColor: "#2196F3",
+    padding: 15,
+    borderRadius: 8,
+    marginVertical: 5,
+    width: "100%",
+    alignItems: "center",
   },
 });

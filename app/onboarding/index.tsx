@@ -1,11 +1,4 @@
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -42,7 +35,7 @@ export default function Setup() {
         } else {
           // 🌐 서버에서 데이터 가져오기
           const response = await axios.get<{ result: CityCode[] }>(
-            "http://takaoracle2.duckdns.org:5000/api/v1/searchCity",
+            "https://bustlebus.duckdns.org/api/v1/searchCity"
           );
           const data = response.data.result;
           setCityCodes(data);
@@ -64,9 +57,7 @@ export default function Setup() {
     if (searchText.trim() === "") {
       setFilteredCities(cityCodes); // 기본일 때 전체 표시
     } else {
-      const filtered = cityCodes.filter((city) =>
-        city.cityName.includes(searchText),
-      );
+      const filtered = cityCodes.filter(city => city.cityName.includes(searchText));
       setFilteredCities(filtered);
     }
   }, [searchText, cityCodes]);
@@ -114,10 +105,7 @@ export default function Setup() {
 
             {/* 오른쪽 버튼이 있으면 보여주고, 없으면 빈 View로 공간 확보 */}
             {row[1] ? (
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => handleCitySelect(row[1])}
-              >
+              <TouchableOpacity style={styles.button} onPress={() => handleCitySelect(row[1])}>
                 <Text style={styles.buttonText}>{row[1].cityName}</Text>
               </TouchableOpacity>
             ) : (

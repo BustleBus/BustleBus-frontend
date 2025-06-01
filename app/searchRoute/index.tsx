@@ -83,7 +83,7 @@ export default function SearchRoute() {
     const fetchResults = async () => {
       try {
         const response = await axios.get(
-          `http://takaoracle2.duckdns.org:5000/api/v1/searchPlace?query=${inputText}`,
+          `https://bustlebus.duckdns.org/api/v1/searchPlace?query=${inputText}`
         );
         setSearchResult(response.data.results || []);
       } catch (error) {
@@ -133,9 +133,9 @@ export default function SearchRoute() {
           const updatedHistory = [
             newHistoryItem,
             ...searchHistory.filter(
-              (history) =>
+              history =>
                 history.startPlaceName !== newHistoryItem.startPlaceName ||
-                history.endPlaceName !== newHistoryItem.endPlaceName,
+                history.endPlaceName !== newHistoryItem.endPlaceName
             ),
           ].slice(0, 10); // 최대 10개 유지
 
@@ -143,10 +143,7 @@ export default function SearchRoute() {
           setSearchHistory(updatedHistory);
 
           // 📦 AsyncStorage에 저장
-          await AsyncStorage.setItem(
-            "search_history",
-            JSON.stringify(updatedHistory),
-          );
+          await AsyncStorage.setItem("search_history", JSON.stringify(updatedHistory));
           console.log("🔄 검색 히스토리 저장:", newHistoryItem);
           await AsyncStorage.setItem(
             "selectedBus",
@@ -159,7 +156,7 @@ export default function SearchRoute() {
               endY: Number(item.y).toFixed(5),
               endAddress: item.road_address_name,
               endPlaceName: item.place_name,
-            }),
+            })
           );
           router.navigate("/searchResultRoute");
         } catch (e) {
@@ -188,7 +185,7 @@ export default function SearchRoute() {
       <View style={styles.search}>
         <SearchTextInput
           text={startPlaceName}
-          setText={(text) => {
+          setText={text => {
             setStartPlaceName(text);
             if (!isSelectingRef.current) setFocusTarget("start");
           }}
@@ -197,7 +194,7 @@ export default function SearchRoute() {
         />
         <SearchTextInput
           text={endPlaceName}
-          setText={(text) => {
+          setText={text => {
             setEndPlaceName(text);
             if (!isSelectingRef.current) setFocusTarget("end");
           }}

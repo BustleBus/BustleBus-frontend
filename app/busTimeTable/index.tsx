@@ -1,33 +1,35 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 import { StyleSheet, View, Text, ScrollView } from "react-native";
 
 export default function BusTimeTable() {
-  const timetable = [
-    ["06:00", "06:40"],
-    ["06:30", "07:10"],
-    ["07:00", "07:40"],
-    ["07:30", "08:10"],
-    ["08:00", "08:40"],
-    ["08:30", "09:10"],
-    ["09:00", "09:40"],
-    ["10:00", "10:10"],
-    ["10:30", "10:40"],
-    ["11:00", "11:10"],
-    ["11:30", "11:40"],
-    ["12:00", "12:10"],
-  ];
+  const [timeTable, setTimeTable] = useState();
 
+  useEffect(() => {
+    const fetchTimeTable = async () => {
+      const selectedBusString = await AsyncStorage.getItem("selectedBus");
+      if (selectedBusString) {
+        const selectedBus = JSON.parse(selectedBusString);
+
+        console.log("🕒 시간표:", selectedBus.timetable);
+        setTimeTable(selectedBus.timetable);
+      }
+    };
+    fetchTimeTable();
+  }, []);
   return (
     <ScrollView style={styles.container}>
       <View style={styles.tableHeader}>
         <Text style={styles.headerText}>기점발</Text>
         <Text style={styles.headerText}>종점발</Text>
       </View>
-      {timetable.map(([start, end], index) => (
-        <View key={index} style={styles.row}>
-          <Text style={styles.time}>{start}</Text>
-          <Text style={styles.time}>{end}</Text>
-        </View>
-      ))}
+      {timeTable &&
+        timeTable.map(([start, end], index) => (
+          <View key={index} style={styles.row}>
+            <Text style={styles.time}>{start}</Text>
+            <Text style={styles.time}>{end}</Text>
+          </View>
+        ))}
     </ScrollView>
   );
 }
