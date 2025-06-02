@@ -5,6 +5,9 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { router } from "expo-router";
 
+import { useAtom } from "jotai";
+import { loadingAtom } from "@/atoms/loadingState";
+
 export default function BusDetailPage() {
   const [direction, setDirection] = useState<string>("");
   const [selectedBus, setSelectedBus] = useState<any | null>(null);
@@ -13,7 +16,7 @@ export default function BusDetailPage() {
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const removeBrackets = (str: string) => str.replace(/\s*\(.*?\)\s*/g, "").trim();
-
+  const [, setLoading] = useAtom(loadingAtom);
   // 최초 1회: 선택한 버스 로딩
   useEffect(() => {
     const loadSelectedBus = async () => {
@@ -34,6 +37,7 @@ export default function BusDetailPage() {
 
     const updateRealTime = async () => {
       try {
+        setLoading(true);
         const cityCodeStr = await AsyncStorage.getItem("selectedCity");
         if (!cityCodeStr) return;
         const cityCode = JSON.parse(cityCodeStr).TagoCityCode;
@@ -85,6 +89,8 @@ export default function BusDetailPage() {
         setLastUpdated(new Date().toLocaleTimeString());
       } catch (error) {
         console.error("실시간 버스 정보 조회 오류:", error);
+      } finally {
+        setLoading(false);
       }
     };
 

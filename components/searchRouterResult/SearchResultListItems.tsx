@@ -2,9 +2,6 @@ import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import ListItemBox from "@/components/common/ListItemBox";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { useRouter } from "expo-router";
 
 interface SearchResultListItemsProps {
   time: string;

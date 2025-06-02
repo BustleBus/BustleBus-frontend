@@ -5,10 +5,12 @@ import SearchTextInput from "@/components/common/SearchTextInput";
 import { Card, Divider } from "react-native-paper";
 import BusLog from "@/components/searchBus/BusLog";
 import SearchBusResult from "@/components/searchBus/SearchBusResult";
-import { DummyData } from "./dummyData";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import axios from "axios";
+import { useAtom } from "jotai";
+import { loadingAtom } from "@/atoms/loadingState";
 
 export default function SearchBus() {
   const [start, setStart] = useState("");
@@ -16,6 +18,7 @@ export default function SearchBus() {
   const [busLogs, setBusLogs] = useState<any[]>([]);
   const [busData, setBusData] = useState([]);
   const router = useRouter();
+  const [, setLoading] = useAtom(loadingAtom);
   console.log(busData);
   const handleSearch = async (busNo: string) => {
     if (!busNo.trim()) {
@@ -23,6 +26,7 @@ export default function SearchBus() {
       return;
     }
     try {
+      setLoading(true);
       const cityCode = await AsyncStorage.getItem("selectedCity");
       if (!cityCode) {
         console.error("도시 정보를 찾을 수 없습니다.");
@@ -41,6 +45,8 @@ export default function SearchBus() {
       setIsSearch(true);
     } catch (error) {
       console.error("버스 검색 중 오류 발생:", error);
+    } finally {
+      setLoading(false);
     }
   };
 

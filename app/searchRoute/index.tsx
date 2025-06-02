@@ -7,6 +7,8 @@ import RouterLog from "@/components/routerLog/RouterLog";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import { useAtom } from "jotai";
+import { loadingAtom } from "@/atoms/loadingState";
 
 type SearchResultItem = {
   road_address_name: string;
@@ -29,6 +31,7 @@ type SearchHistoryItem = {
 
 export default function SearchRoute() {
   const router = useRouter();
+  const [, setLoading] = useAtom(loadingAtom);
   // 출발지 상태
   const [startRoadAddress, setStartRoadAddress] = useState("");
   const [startPlaceName, setStartPlaceName] = useState("");
@@ -82,12 +85,15 @@ export default function SearchRoute() {
 
     const fetchResults = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(
           `https://bustlebus.duckdns.org/api/v1/searchPlace?query=${inputText}`
         );
         setSearchResult(response.data.results || []);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
 

@@ -12,11 +12,7 @@ export default function FavoriteBus({
   onDelete?: () => void;
 }) {
   return (
-    <ListItemBox 
-      onPress={onPress} 
-      onRemove={onDelete}
-      showClose={!!onDelete}
-    >
+    <ListItemBox onPress={onPress} onRemove={onDelete} showClose={!!onDelete}>
       <Text style={styles.busText}>{children}</Text>
     </ListItemBox>
   );

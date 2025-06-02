@@ -1,6 +1,8 @@
 import { Stack } from "expo-router";
 
-export default function RootLayout() {
+import GlobalLoading from "@/components/GlobalLoading";
+
+export default function Layout() {
   return (
     <>
       <Stack
@@ -8,6 +10,7 @@ export default function RootLayout() {
           headerShown: false,
         }}
       />
+      <GlobalLoading />
     </>
   );
 }

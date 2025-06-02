@@ -3,6 +3,8 @@ import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAtom } from "jotai";
+import { loadingAtom } from "@/atoms/loadingState";
 
 // 🔄 타입 정의
 type CityCode = {
@@ -20,11 +22,12 @@ export default function Setup() {
   const [filteredCities, setFilteredCities] = useState<CityCode[]>([]);
   const [searchText, setSearchText] = useState<string>("");
   const router = useRouter();
-
+  const [, setLoading] = useAtom(loadingAtom);
   // 🔄 데이터 로드
   useEffect(() => {
     const loadCities = async () => {
       try {
+        setLoading(true);
         // 📦 로컬 저장된 데이터 불러오기
         const storedData = await AsyncStorage.getItem(CITY_STORAGE_KEY);
         if (storedData) {
@@ -46,6 +49,8 @@ export default function Setup() {
         }
       } catch (error) {
         console.error("데이터 로드 에러:", error);
+      } finally {
+        setLoading(false);
       }
     };
 

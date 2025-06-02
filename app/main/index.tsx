@@ -1,21 +1,13 @@
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Divider } from "react-native-paper";
 import FavoriteRoute from "@/components/main/FavoriteRoute";
-import FavoriteBus, { FavoriteBusItem } from "@/components/main/FavoriteBus";
+import FavoriteBus from "@/components/main/FavoriteBus";
 import { useRouter } from "expo-router";
 import { sharedStyles } from "@/styles/shared";
 import { useCallback, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-
-type FavoriteRouteItem = {
-  startPlaceName: string;
-  endPlaceName: string;
-  startX: string;
-  startY: string;
-  endX: string;
-  endY: string;
-};
+import { FavoriteBusItem, FavoriteRouteItem } from "@/types/bus";
 
 export default function Index() {
   const [favoriteRoutes, setFavoriteRoutes] = useState<FavoriteRouteItem[]>([]);
