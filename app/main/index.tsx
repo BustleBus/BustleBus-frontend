@@ -1,17 +1,12 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Divider } from "react-native-paper";
 import FavoriteRoute from "@/components/main/FavoriteRoute";
-import FavoriteBus from "@/components/main/FavoriteBus";
+import FavoriteBus, { FavoriteBusItem } from "@/components/main/FavoriteBus";
 import { useRouter } from "expo-router";
 import { sharedStyles } from "@/styles/shared";
 import { useCallback, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-
-type FavoriteBusItem = {
-  busNumber: string;
-  busOrigin?: string;
-};
 
 type FavoriteRouteItem = {
   startPlaceName: string;
@@ -26,7 +21,7 @@ export default function Index() {
   const [favoriteRoutes, setFavoriteRoutes] = useState<FavoriteRouteItem[]>([]);
   const [favoriteBuses, setFavoriteBuses] = useState<FavoriteBusItem[]>([]);
   const router = useRouter();
-
+  console.log("favoriteBuses", favoriteBuses);
   useFocusEffect(
     useCallback(() => {
       const loadFavorites = async () => {
@@ -54,12 +49,41 @@ export default function Index() {
   );
 
   const handleFavoriteDelete = async (route: FavoriteRouteItem) => {
-    const updated = favoriteRoutes.filter(
-      item => !(item.startX === route.startX && item.endX === route.endX)
-    );
-    setFavoriteRoutes(updated);
-    await AsyncStorage.setItem("routeFavorite", JSON.stringify(updated));
+    try {
+      const updatedFavorites = favoriteRoutes.filter(
+        r => r.startPlaceName !== route.startPlaceName || r.endPlaceName !== route.endPlaceName
+      );
+      setFavoriteRoutes(updatedFavorites);
+      await AsyncStorage.setItem("routeFavorite", JSON.stringify(updatedFavorites));
+    } catch (e) {
+      console.error("❌ 경로 즐겨찾기 삭제 실패:", e);
+    }
   };
+
+  const handleBusFavoriteDelete = async (bus: FavoriteBusItem) => {
+    try {
+      const updatedFavorites = favoriteBuses.filter(
+        b => b.busNumber !== bus.busNumber || b.busOrigin !== bus.busOrigin
+      );
+      setFavoriteBuses(updatedFavorites);
+      await AsyncStorage.setItem("busFavorite", JSON.stringify(updatedFavorites));
+    } catch (e) {
+      console.error("❌ 버스 즐겨찾기 삭제 실패:", e);
+    }
+  };
+
+  const handleBusPress = async (bus: FavoriteBusItem) => {
+    try {
+      // Save selected bus to AsyncStorage
+      await AsyncStorage.setItem("selectedBus", JSON.stringify(bus));
+
+      // Navigate to bus detail page
+      router.push("/busDetailPage");
+    } catch (e) {
+      console.error("❌ 버스 정보 저장 실패:", e);
+    }
+  };
+
   return (
     <ScrollView>
       <View style={styles.body}>
@@ -108,9 +132,8 @@ export default function Index() {
                   {pair.map((bus, i) => (
                     <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
                       <FavoriteBus
-                        onPress={() => {
-                          console.log("Bus selected:", bus);
-                        }}
+                        onPress={() => handleBusPress(bus)}
+                        onDelete={() => handleBusFavoriteDelete(bus)}
                       >
                         {bus.busNo}번
                       </FavoriteBus>

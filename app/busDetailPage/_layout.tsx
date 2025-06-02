@@ -14,7 +14,7 @@ export default function MainLayout() {
   const router = useRouter();
   const [bus, setBus] = useState<BusInfo | null>(null);
   const [isFavorited, setIsFavorited] = useState(false);
-
+  console.log("bus", bus?.busNo);
   useEffect(() => {
     const fetchBus = async () => {
       try {
@@ -30,9 +30,9 @@ export default function MainLayout() {
         // Load favorite status
         const favoriteString = await AsyncStorage.getItem("busFavorite");
         const favorite = favoriteString ? (JSON.parse(favoriteString) as BusInfo[]) : [];
-        
+
         const exists = favorite.some(
-          (item) => item.busNumber === selectedBus.busNumber
+          item => item.busNumber === selectedBus.busNumber && item.busOrigin === selectedBus.busOrigin
         );
         setIsFavorited(exists);
       } catch (error) {
@@ -48,15 +48,15 @@ export default function MainLayout() {
     try {
       const favoriteString = await AsyncStorage.getItem("busFavorite");
       const favorite = favoriteString ? (JSON.parse(favoriteString) as BusInfo[]) : [];
-      
+
       const exists = favorite.some(
-        (item) => item.busNumber === bus.busNumber
+        item => item.busNumber === bus.busNumber && item.busOrigin === bus.busOrigin
       );
 
       let updatedFavorite: BusInfo[];
       if (exists) {
         updatedFavorite = favorite.filter(
-          (item) => item.busNumber !== bus.busNumber
+          item => !(item.busNumber === bus.busNumber && item.busOrigin === bus.busOrigin)
         );
         setIsFavorited(false);
       } else {
@@ -64,10 +64,7 @@ export default function MainLayout() {
         setIsFavorited(true);
       }
 
-      await AsyncStorage.setItem(
-        "busFavorite",
-        JSON.stringify(updatedFavorite)
-      );
+      await AsyncStorage.setItem("busFavorite", JSON.stringify(updatedFavorite));
     } catch (error) {
       console.error("❌ 즐겨찾기 업데이트 실패:", error);
     }

@@ -131,14 +131,16 @@ export default function SearchBus() {
       <View style={styles.result}>
         {isSearch ? (
           <Card style={styles.card}>
-            {busData.result.map((item, index) => (
-              <SearchBusResult
-                key={item.busID}
-                bus={item.busNo}
-                routePath={item.location}
-                onPress={() => handleBusPress(item)}
-              />
-            ))}
+            {busData &&
+              busData.result.length > 0 &&
+              busData.result.map((item, index) => (
+                <SearchBusResult
+                  key={item.busID}
+                  bus={item.busNo}
+                  routePath={item.location}
+                  onPress={() => handleBusPress(item)}
+                />
+              ))}
           </Card>
         ) : (
           <ScrollView style={styles.result}>
