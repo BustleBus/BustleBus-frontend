@@ -96,7 +96,7 @@ export default function BusDetailPage() {
 
     updateRealTime();
 
-    intervalRef.current = setInterval(updateRealTime, 10000);
+    intervalRef.current = setInterval(updateRealTime, 15000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -199,7 +199,7 @@ export default function BusDetailPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F5FF",
+    // backgroundColor: "#F8F5FF",
   },
   header: {
     padding: 20,
