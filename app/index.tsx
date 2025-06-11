@@ -11,7 +11,7 @@ export default function Index() {
   useEffect(() => {
     const checkFlow = async () => {
       // 3초 스플래시 효과
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
 
       const hasCompletedSetup = await AsyncStorage.getItem("hasCompletedSetup");
 
@@ -35,7 +35,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F4F9FF",
     justifyContent: "center",
     alignItems: "center",
   },

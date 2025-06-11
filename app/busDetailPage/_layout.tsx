@@ -1,9 +1,10 @@
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-
+import { useGoToMainAndReset, useGoBack } from "@/hooks/useGoToMainAndReset";
+import { Colors } from "@/styles/shared";
 type BusInfo = {
   busOrigin: string;
   busNumber: string;
@@ -11,10 +12,10 @@ type BusInfo = {
 };
 
 export default function MainLayout() {
-  const router = useRouter();
   const [bus, setBus] = useState<BusInfo | null>(null);
   const [isFavorited, setIsFavorited] = useState(false);
-  console.log("bus", bus?.busNo);
+  const goHome = useGoToMainAndReset();
+  const goBack = useGoBack();
   useEffect(() => {
     const fetchBus = async () => {
       try {
@@ -32,7 +33,8 @@ export default function MainLayout() {
         const favorite = favoriteString ? (JSON.parse(favoriteString) as BusInfo[]) : [];
 
         const exists = favorite.some(
-          item => item.busNumber === selectedBus.busNumber && item.busOrigin === selectedBus.busOrigin
+          item =>
+            item.busNumber === selectedBus.busNumber && item.busOrigin === selectedBus.busOrigin
         );
         setIsFavorited(exists);
       } catch (error) {
@@ -73,17 +75,22 @@ export default function MainLayout() {
   return (
     <Stack
       screenOptions={{
+        headerStyle: {
+          backgroundColor: Colors.primary,
+        },
+        contentStyle: {
+          backgroundColor: Colors.background,
+        },
         headerTitle: () => (
-          <Text style={{ fontSize: 16 }}>
-            {" "}
+          <Text style={{ fontSize: 16, color: Colors.surface }}>
             {bus?.busOrigin ? `${bus.busOrigin}` : "버스 정보 없음"}
           </Text>
         ),
         headerTitleAlign: "left",
 
         headerLeft: () => (
-          <TouchableOpacity onPressIn={() => router.back()} style={{ paddingHorizontal: 12 }}>
-            <Ionicons name="arrow-back" size={24} />
+          <TouchableOpacity onPressIn={goBack} style={{ paddingHorizontal: 12 }}>
+            <Ionicons name="arrow-back" size={24} style={{ marginTop: 2, color: Colors.surface }} />
           </TouchableOpacity>
         ),
 
@@ -96,13 +103,8 @@ export default function MainLayout() {
                 color={isFavorited ? "#f1c40f" : "black"}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPressIn={() => {
-                router.replace("/main");
-              }}
-              style={{ paddingHorizontal: 12 }}
-            >
-              <Ionicons name="home" size={24} />
+            <TouchableOpacity onPressIn={goHome} style={{ paddingHorizontal: 12 }}>
+              <Ionicons name="home" size={24} style={{ marginTop: 2, color: Colors.surface }} />
             </TouchableOpacity>
           </View>
         ),

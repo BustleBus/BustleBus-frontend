@@ -7,6 +7,7 @@ import SearchResultListItems from "@/components/searchRouterResult/SearchResultL
 import { useRouter } from "expo-router";
 import { useAtom } from "jotai";
 import { loadingAtom } from "@/atoms/loadingState";
+import { Colors } from "@/styles/shared";
 
 export default function SearchResultRoute() {
   const [data, setData] = useState([]);
@@ -155,6 +156,10 @@ export default function SearchResultRoute() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginTop: 10,
+  },
   // Modal Styles
   modalOverlay: {
     flex: 1,

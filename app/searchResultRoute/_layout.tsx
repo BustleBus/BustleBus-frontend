@@ -3,6 +3,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Colors } from "@/styles/shared";
+import { useGoToMainAndReset, useGoBack } from "@/hooks/useGoToMainAndReset";
 
 type SearchRoute = {
   startPlaceName: string;
@@ -17,7 +19,8 @@ export default function MainLayout() {
   const router = useRouter();
   const [searchRoute, setSearchRoute] = useState<SearchRoute | null>(null);
   const [isFavorited, setIsFavorited] = useState(false);
-
+  const goHome = useGoToMainAndReset();
+  const goBack = useGoBack();
   useEffect(() => {
     const getData = async () => {
       try {
@@ -98,9 +101,19 @@ export default function MainLayout() {
   return (
     <Stack
       screenOptions={{
+        headerStyle: {
+          backgroundColor: Colors.primary,
+        },
+        contentStyle: {
+          backgroundColor: Colors.background,
+        },
         headerTitle: () => (
           <View>
-            <Text style={{ fontSize: 16 }} numberOfLines={1} ellipsizeMode="tail">
+            <Text
+              style={{ fontSize: 16, color: Colors.surface }}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {shorten(searchRoute?.startPlaceName)} → {shorten(searchRoute?.endPlaceName)}
             </Text>
           </View>
@@ -108,8 +121,8 @@ export default function MainLayout() {
         headerTitleAlign: "left",
 
         headerLeft: () => (
-          <TouchableOpacity onPressIn={() => router.back()} style={{ paddingHorizontal: 12 }}>
-            <Ionicons name="arrow-back" size={24} />
+          <TouchableOpacity onPressIn={goBack} style={{ paddingRight: 12 }}>
+            <Ionicons name="arrow-back" size={24} style={{ color: Colors.surface, marginTop: 2 }} />
           </TouchableOpacity>
         ),
 
@@ -117,18 +130,14 @@ export default function MainLayout() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={toggleFavorite} style={{ paddingHorizontal: 12 }}>
               <Ionicons
-                name={isFavorited ? "star" : "star-outline"}
+                name={isFavorited ? "heart" : "heart-outline"}
                 size={24}
-                color={isFavorited ? "#f1c40f" : "black"}
+                color={isFavorited ? "red" : Colors.surface}
+                style={{ marginTop: 2 }}
               />
             </TouchableOpacity>
-            <TouchableOpacity
-              onPressIn={() => {
-                router.replace("/main");
-              }}
-              style={{ paddingHorizontal: 12 }}
-            >
-              <Ionicons name="home" size={24} />
+            <TouchableOpacity onPressIn={goHome} style={{ paddingHorizontal: 12 }}>
+              <Ionicons name="home" size={24} style={{ marginTop: 2, color: Colors.surface }} />
             </TouchableOpacity>
           </View>
         ),
