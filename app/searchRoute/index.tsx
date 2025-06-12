@@ -252,7 +252,7 @@ export default function SearchRoute() {
               index={index}
               history={history}
               onDelete={handleLogDelete}
-              text={`${history.startPlaceName} -> ${history.endPlaceName}`}
+              text={`${history.startPlaceName} → ${history.endPlaceName}`}
             />
           ))
         )}

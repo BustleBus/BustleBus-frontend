@@ -98,9 +98,10 @@ export default function MainLayout() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity onPress={toggleFavorite} style={{ paddingHorizontal: 12 }}>
               <Ionicons
-                name={isFavorited ? "star" : "star-outline"}
+                name={isFavorited ? "heart" : "heart-outline"}
                 size={24}
-                color={isFavorited ? "#f1c40f" : "black"}
+                color={isFavorited ? "red" : Colors.surface}
+                style={{ marginTop: 2 }}
               />
             </TouchableOpacity>
             <TouchableOpacity onPressIn={goHome} style={{ paddingHorizontal: 12 }}>

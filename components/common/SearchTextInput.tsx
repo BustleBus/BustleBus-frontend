@@ -1,6 +1,6 @@
-import { IconButton, TextInput } from 'react-native-paper';
-import { KeyboardTypeOptions, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Dispatch, SetStateAction } from 'react';
+import { IconButton, TextInput } from "react-native-paper";
+import { KeyboardTypeOptions, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Dispatch, SetStateAction } from "react";
 
 export default function SearchTextInput({
   text,
@@ -8,7 +8,7 @@ export default function SearchTextInput({
   placeholder,
   onBlur,
   style,
-  keyboardType = 'default',
+  keyboardType = "default",
   onSubmitEditing,
 }: {
   text: string;
@@ -36,7 +36,7 @@ export default function SearchTextInput({
       />
       <TouchableOpacity
         onPress={() => {
-          setText('');
+          setText("");
           if (onBlur) onBlur(); // onBlur가 있을 때만 호출
         }}
         style={styles.icon}
@@ -49,9 +49,9 @@ export default function SearchTextInput({
 
 const styles = StyleSheet.create({
   box: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ece5f0',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
     borderRadius: 24,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     fontSize: 14,
     paddingHorizontal: 0,
   },

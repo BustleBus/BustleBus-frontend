@@ -30,6 +30,7 @@ const styles = StyleSheet.create({
     marginVertical: 3,
   },
   logCard: {
+    backgroundColor: "white",
     padding: 16,
     marginBottom: 8,
   },

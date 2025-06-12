@@ -1,8 +1,6 @@
-import { StyleSheet, Text, View } from 'react-native';
-import ListItemBox from '@/components/common/ListItemBox';
-import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import BusResultBox from "../common/BusResultBox";
 
 export default function SearchBusResult({
   bus,
@@ -16,24 +14,20 @@ export default function SearchBusResult({
   const router = useRouter();
   return (
     <View style={styles.box}>
-      <ListItemBox
-        showClose={false}
+      <BusResultBox
+        busNo={bus}
+        routePath={routePath}
         onPress={() => {
           onPress?.();
-          router.navigate('/busDetailPage');
+          router.navigate("/busDetailPage");
         }}
-      >
-        <View>
-          <Text style={{ fontWeight: 'bold' }}>{bus}</Text>
-          <Text>{routePath}</Text>
-        </View>
-      </ListItemBox>
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   box: {
-    marginBottom: 10,
+    marginVertical: 5,
   },
 });

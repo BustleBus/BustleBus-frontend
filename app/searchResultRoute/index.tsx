@@ -86,29 +86,31 @@ export default function SearchResultRoute() {
     <>
       <ScrollView>
         <View style={styles.container}>
-          {data.map((route, index) =>
-            route.busSubPaths.length === 1 ? (
-              <SearchResultListItem
-                key={index}
-                time={`${route.totalTime}분`}
-                bus={`${route.busSubPaths[0].busOrigin}`}
-                crowdLevel=""
-                busNo={`${route.busSubPaths[0].busNo}`}
-              />
-            ) : (
-              <SearchResultListItems
-                key={index}
-                time={`${route.totalTime}분`}
-                firstBus={`${route.busSubPaths[0].busOrigin}`}
-                secondBus={`${route.busSubPaths[1]?.busOrigin ?? "?"}`}
-                crowdLevel=""
-                onPress={(firstBus, secondBus) => {
-                  setSelectedBuses({ firstBus, secondBus });
-                  setModalVisible(true);
-                }}
-              />
-            )
-          )}
+          {data.map((route, index) => (
+            <View key={index} style={{ paddingHorizontal: 2 }}>
+              {route.busSubPaths.length === 1 ? (
+                <SearchResultListItem
+                  key={route.busSubPaths[0].routeId}
+                  time={`${route.totalTime}분`}
+                  bus={`${route.busSubPaths[0].busOrigin}`}
+                  crowdLevel=""
+                  busNo={`${route.busSubPaths[0].busNo}`}
+                />
+              ) : (
+                <SearchResultListItems
+                  key={route.busSubPaths[0].routeId}
+                  time={`${route.totalTime}분`}
+                  firstBus={`${route.busSubPaths[0].busOrigin}`}
+                  secondBus={`${route.busSubPaths[1]?.busOrigin ?? "?"}`}
+                  crowdLevel=""
+                  onPress={(firstBus, secondBus) => {
+                    setSelectedBuses({ firstBus, secondBus });
+                    setModalVisible(true);
+                  }}
+                />
+              )}
+            </View>
+          ))}
         </View>
       </ScrollView>
 
@@ -158,6 +160,7 @@ export default function SearchResultRoute() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 5,
     marginTop: 10,
   },
   // Modal Styles

@@ -19,7 +19,7 @@ export default function SearchBus() {
   const [busData, setBusData] = useState([]);
   const router = useRouter();
   const [, setLoading] = useAtom(loadingAtom);
-  console.log(busData);
+  console.log("busLog", busLogs);
   const handleSearch = async (busNo: string) => {
     if (!busNo.trim()) {
       // 빈 검색어 처리
@@ -116,7 +116,7 @@ export default function SearchBus() {
           <SearchTextInput
             text={start}
             setText={text => setStart(text)}
-            placeholder={"버스 번호"}
+            placeholder={"버스 번호를 검색해 주세요"}
             keyboardType="number-pad"
             onSubmitEditing={() => handleSearch(start)} // 🔹 추가
             onBlur={() => {
@@ -154,13 +154,16 @@ export default function SearchBus() {
               <Text style={{ padding: 10 }}>최근 검색된 버스가 없습니다.</Text>
             ) : (
               busLogs.map((log, index) => (
-                <BusLog
-                  onPress={() => handlePressLog(log)}
-                  key={index}
-                  bus={log.busNo}
-                  routePath={log.location}
-                  onClose={() => handleRemoveLog(log.busID)}
-                />
+                <View style={styles.box} key={log.busID}>
+                  <BusLog
+                    onPress={() => handlePressLog(log)}
+                    key={log.busID}
+                    bus={log.busNo}
+                    start={log.busStartPoint}
+                    end={log.busEndPoint}
+                    onClose={() => handleRemoveLog(log.busID)}
+                  />
+                </View>
               ))
             )}
           </ScrollView>
@@ -198,13 +201,17 @@ const styles = StyleSheet.create({
     pointerEvents: "none",
   },
   result: {
+    paddingHorizontal: 1,
     flex: 1, // 카드나 로그가 차지할 공간
     paddingTop: 5,
   },
   card: {
     flexDirection: "row",
     flex: 1, // 카드 자체도 최대 확장
-    padding: 16,
+    padding: 8,
     backgroundColor: "white",
+  },
+  box: {
+    marginVertical: 5,
   },
 });

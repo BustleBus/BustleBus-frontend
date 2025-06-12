@@ -111,7 +111,7 @@ export default function Index() {
               }}
             />
             <Ionicons name="heart" size={24} color="red" style={{ marginRight: 8, marginTop: 5 }} />
-            <Text style={styles.sectionTitle}> 즐겨 찾는 경로</Text>
+            <Text style={styles.sectionTitle}>즐겨 찾는 경로</Text>
           </View>
 
           <View style={sharedStyles.column}>
@@ -132,6 +132,9 @@ export default function Index() {
                 </View>
               );
             })}
+            {favoriteRoutes.length === 0 && (
+              <Text style={styles.emptyText}>저장된 경로가 없습니다</Text>
+            )}
           </View>
         </View>
         <View style={styles.section}>
@@ -154,25 +157,18 @@ export default function Index() {
             />
             <Text style={styles.sectionTitle}>즐겨찾는 버스</Text>
           </View>
-          {/* <Divider style={styles.divider} /> */}
           <View style={sharedStyles.column}>
-            {Array.from({ length: Math.ceil(favoriteBuses.length / 2) }).map((_, rowIdx) => {
-              const pair = favoriteBuses.slice(rowIdx * 2, rowIdx * 2 + 2);
-              return (
-                <View key={rowIdx} style={sharedStyles.row}>
-                  {pair.map((bus, i) => (
-                    <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
-                      <FavoriteBus
-                        onPress={() => handleBusPress(bus)}
-                        onDelete={() => handleBusFavoriteDelete(bus)}
-                      >
-                        {bus.busNo}번
-                      </FavoriteBus>
-                    </View>
-                  ))}
-                </View>
-              );
-            })}
+            {favoriteBuses.map((bus, i) => (
+              <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
+                <FavoriteBus
+                  onPress={() => handleBusPress(bus)}
+                  onDelete={() => handleBusFavoriteDelete(bus)}
+                  busNo={bus.busNo}
+                  start={bus.busStartPoint}
+                  end={bus.busEndPoint}
+                />
+              </View>
+            ))}
             {favoriteBuses.length === 0 && (
               <Text style={styles.emptyText}>저장된 버스가 없습니다</Text>
             )}

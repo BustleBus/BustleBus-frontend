@@ -1,25 +1,24 @@
-import { Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import React from "react";
 import ListItemBox from "@/components/common/ListItemBox";
+import { Colors } from "@/styles/shared";
+import cleanText from "@/util/cleanText";
+import BusResultBox from "../common/BusResultBox";
 
 export default function FavoriteBus({
-  children,
   onPress,
   onDelete,
+  busNo,
+  start,
+  end,
 }: {
-  children: React.ReactNode;
   onPress: () => void;
   onDelete?: () => void;
+  busNo: string;
+  start?: string;
+  end?: string;
 }) {
   return (
-    <ListItemBox onPress={onPress} onRemove={onDelete} showClose={!!onDelete}>
-      <Text style={styles.busText}>{children}</Text>
-    </ListItemBox>
+    <BusResultBox onPress={onPress} onDelete={onDelete} busNo={busNo} start={start} end={end} />
   );
 }
-
-const styles = StyleSheet.create({
-  busText: {
-    fontSize: 16,
-  },
-});

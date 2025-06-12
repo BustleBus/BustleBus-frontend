@@ -7,6 +7,7 @@ import { router } from "expo-router";
 
 import { useAtom } from "jotai";
 import { loadingAtom } from "@/atoms/loadingState";
+import { Colors } from "@/styles/shared"; // Colors import
 
 export default function BusDetailPage() {
   const [direction, setDirection] = useState<string>("");
@@ -199,36 +200,30 @@ export default function BusDetailPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor: "#F8F5FF",
+    backgroundColor: Colors.background,
   },
   header: {
     padding: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     marginBottom: 8,
     elevation: 2,
-    shadowColor: "#7E57C2",
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  lastUpdated: {
-    textAlign: "right",
-    fontSize: 12,
-    color: "#9E9E9E",
-    fontFamily: "System",
-    fontWeight: "500",
-  },
+
   toggleGroup: {
     flexDirection: "row",
     margin: 20,
     marginBottom: 12,
     borderRadius: 50,
-    backgroundColor: "#EDE7F6",
+    backgroundColor: Colors.sub,
     overflow: "hidden",
     elevation: 2,
-    shadowColor: "#7E57C2",
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -241,8 +236,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   activeButton: {
-    backgroundColor: "#7E57C2",
-    shadowColor: "#7E57C2",
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -250,12 +245,12 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 14,
-    color: "#7E57C2",
+    color: Colors.primary,
     fontWeight: "600",
     fontFamily: "System",
   },
   activeButtonText: {
-    color: "#FFFFFF",
+    color: Colors.surface,
     fontWeight: "700",
   },
   listContent: {
@@ -266,20 +261,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 16,
     marginBottom: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     elevation: 1,
-    shadowColor: "#7E57C2",
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     borderWidth: 1,
-    borderColor: "#F3EBFF",
+    borderColor: Colors.secsub,
   },
   stationWithBus: {
-    backgroundColor: "#F3EBFF",
+    backgroundColor: Colors.secsub,
     borderLeftWidth: 4,
-    borderLeftColor: "#7E57C2",
+    borderLeftColor: Colors.primary,
     marginLeft: 20,
     elevation: 2,
   },
@@ -292,19 +287,19 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: "#7E57C2",
+    backgroundColor: Colors.primary,
     marginBottom: 4,
     borderWidth: 2,
-    borderColor: "#F3E5F5",
+    borderColor: Colors.sub,
     zIndex: 2,
   },
   stationDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#D1C4E9",
+    backgroundColor: Colors.secsub, // 색상 매핑 대상 없어서 유지
     borderWidth: 2,
-    borderColor: "#F8F5FF",
+    borderColor: Colors.background,
     zIndex: 1,
   },
   stationLine: {
@@ -313,7 +308,7 @@ const styles = StyleSheet.create({
     top: 24,
     bottom: -16,
     width: 2,
-    backgroundColor: "#E1BEE7",
+    backgroundColor: Colors.secsub, // 색상 매핑 대상 없어서 유지
     zIndex: 0,
   },
   stationInfo: {
@@ -329,7 +324,7 @@ const styles = StyleSheet.create({
   busInfoContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F3E5F5",
+    backgroundColor: Colors.sub,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -338,14 +333,14 @@ const styles = StyleSheet.create({
   },
   busNumber: {
     fontSize: 14,
-    color: "#7E57C2",
+    color: Colors.primary,
     marginRight: 8,
     fontWeight: "700",
     fontFamily: "System",
   },
   congestionLevel: {
     fontSize: 12,
-    color: "#7E57C2",
+    color: Colors.primary,
     fontFamily: "System",
     fontWeight: "500",
   },
