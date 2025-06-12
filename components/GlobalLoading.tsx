@@ -1,5 +1,4 @@
 // components/GlobalLoading.tsx
-"use client"; // React Native에서는 생략해도 됨
 
 import { useAtom } from "jotai";
 import { loadingAtom } from "@/atoms/loadingState";
