@@ -48,7 +48,14 @@ export const styles = StyleSheet.create({
     borderWidth: 0.5,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between", // ← 선택
+    justifyContent: "space-between",
+
+    // 👇 그림자 추가
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // Android 전용
   },
   ListItemCloseBtn: {
     justifyContent: "flex-end",

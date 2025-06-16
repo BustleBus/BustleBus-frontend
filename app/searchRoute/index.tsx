@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View, Text } from "react-native";
 import SearchTextInput from "@/components/common/SearchTextInput";
 import { Card, Divider } from "react-native-paper";
 import SearchRouterResult from "@/components/searchRouterResult/SearchRouterResult";
@@ -29,6 +29,7 @@ type SearchHistoryItem = {
 
 export default function SearchRoute() {
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
   // 출발지 상태
   const [startRoadAddress, setStartRoadAddress] = useState("");
   const [startPlaceName, setStartPlaceName] = useState("");
@@ -44,6 +45,7 @@ export default function SearchRoute() {
   // 포커스 및 검색 상태
   const [focusTarget, setFocusTarget] = useState<"start" | "end" | null>(null);
   const [searchResult, setSearchResult] = useState<SearchResultItem[]>([]);
+  const [lastValidResult, setLastValidResult] = useState<SearchResultItem[]>([]);
 
   // 🔄 포커스 유지 상태 (버그 방지)
   const isSelectingRef = useRef(false);
@@ -82,12 +84,21 @@ export default function SearchRoute() {
 
     const fetchResults = async () => {
       try {
+        setLoading(true);
         const response = await axios.get(
           `https://bustlebus.duckdns.org/api/v1/searchPlace?query=${inputText}`
         );
-        setSearchResult(response.data.results || []);
+        const results = response.data.results || [];
+        setSearchResult(results);
+
+        // ✅ 검색 결과가 있을 때만 캐싱
+        if (results.length > 0) {
+          setLastValidResult(results);
+        }
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -179,6 +190,7 @@ export default function SearchRoute() {
     const updatedHistory = searchHistory.filter((_, i) => i !== index);
     setSearchHistory(updatedHistory);
   };
+  const searchPlaceName = focusTarget === "start" ? startPlaceName : endPlaceName;
 
   return (
     <View style={styles.body}>
@@ -204,29 +216,43 @@ export default function SearchRoute() {
       </View>
       <Divider />
       <View style={styles.result}>
-        {focusTarget && searchResult.length > 0 ? (
-          <Card style={styles.card}>
-            <ScrollView>
-              {searchResult.map((item, index) => (
-                <SearchRouterResult
-                  key={index}
-                  place={item.place_name}
-                  placeDetail={item.road_address_name}
-                  categoryName={item.category_name}
-                  onPress={() => handlePlaceSelect(item)}
-                />
-              ))}
-            </ScrollView>
-          </Card>
+        {focusTarget ? (
+          searchPlaceName.trim() === "" ? (
+            // ✅ 검색어가 비어 있을 때
+            <Text style={{ fontSize: 16, color: "#999", textAlign: "center" }}>
+              검색어를 입력해주세요
+            </Text>
+          ) : (searchResult.length > 0 ? searchResult : lastValidResult).length > 0 ? (
+            // ✅ 결과 또는 이전 성공 결과 존재
+            <Card style={styles.card}>
+              <ScrollView>
+                {(searchResult.length > 0 ? searchResult : lastValidResult).map((item, index) => (
+                  <SearchRouterResult
+                    key={index}
+                    place={item.place_name}
+                    placeDetail={item.road_address_name}
+                    categoryName={item.category_name}
+                    onPress={() => handlePlaceSelect(item)}
+                  />
+                ))}
+              </ScrollView>
+            </Card>
+          ) : (
+            // ❌ 실패하고, 이전 결과도 없음
+            <Text style={{ fontSize: 16, color: "#999", textAlign: "center" }}>
+              검색 결과가 없습니다.
+            </Text>
+          )
         ) : (
+          // 🔁 검색 기록
           searchHistory.length > 0 &&
           searchHistory.map((history, index) => (
             <RouterLog
-              onDelete={handleLogDelete}
               key={index}
               index={index}
               history={history}
-              text={`${history.startPlaceName} -> ${history.endPlaceName}`}
+              onDelete={handleLogDelete}
+              text={`${history.startPlaceName} → ${history.endPlaceName}`}
             />
           ))
         )}

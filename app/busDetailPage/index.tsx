@@ -5,6 +5,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { router } from "expo-router";
 
+import { useAtom } from "jotai";
+import { loadingAtom } from "@/atoms/loadingState";
+import { Colors } from "@/styles/shared"; // Colors import
+
 export default function BusDetailPage() {
   const [direction, setDirection] = useState<string>("");
   const [selectedBus, setSelectedBus] = useState<any | null>(null);
@@ -13,7 +17,7 @@ export default function BusDetailPage() {
   const [lastUpdated, setLastUpdated] = useState<string>("");
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const removeBrackets = (str: string) => str.replace(/\s*\(.*?\)\s*/g, "").trim();
-
+  const [, setLoading] = useAtom(loadingAtom);
   // 최초 1회: 선택한 버스 로딩
   useEffect(() => {
     const loadSelectedBus = async () => {
@@ -34,6 +38,7 @@ export default function BusDetailPage() {
 
     const updateRealTime = async () => {
       try {
+        setLoading(true);
         const cityCodeStr = await AsyncStorage.getItem("selectedCity");
         if (!cityCodeStr) return;
         const cityCode = JSON.parse(cityCodeStr).TagoCityCode;
@@ -61,7 +66,7 @@ export default function BusDetailPage() {
             nodeord: Number(station.idx),
             nodeid: bus?.nodeId,
             vehicleno: bus?.vehicleNo,
-            congestionLevel: bus ? "정보 없음" : undefined,
+            congestionLevel: bus?.congestionLevel ?? "정보 없음", // ← 수정
             direction: "startPoint",
           };
         });
@@ -74,7 +79,7 @@ export default function BusDetailPage() {
             nodeord: Number(station.idx),
             nodeid: bus?.nodeId,
             vehicleno: bus?.vehicleNo,
-            congestionLevel: bus ? "정보 없음" : undefined,
+            congestionLevel: bus?.congestionLevel ?? "정보 없음", // ← 수정
             direction: "endPoint",
           };
         });
@@ -85,12 +90,14 @@ export default function BusDetailPage() {
         setLastUpdated(new Date().toLocaleTimeString());
       } catch (error) {
         console.error("실시간 버스 정보 조회 오류:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
     updateRealTime();
 
-    intervalRef.current = setInterval(updateRealTime, 10000);
+    intervalRef.current = setInterval(updateRealTime, 15000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
@@ -99,7 +106,18 @@ export default function BusDetailPage() {
 
   const renderItem = ({ item }: { item: any }) => {
     const hasBus = !!item.vehicleno;
-
+    const getStationColor = (level: string) => {
+      switch (level) {
+        case "여유":
+          return "#81C784"; // 초록색
+        case "보통":
+          return "#F57F17"; // 주황색
+        case "혼잡":
+          return "red"; // 빨간색
+        default:
+          return Colors.secsub; // 기본 회색
+      }
+    };
     return (
       <View style={[styles.stationItem, hasBus && styles.stationWithBus]}>
         <View style={styles.stationMarker}>
@@ -111,8 +129,14 @@ export default function BusDetailPage() {
           <Text style={styles.stationName}>{item.nodenm || `정류장 ${item.nodeord}`}</Text>
           {hasBus && (
             <View style={styles.busInfoContainer}>
-              <Text style={styles.busNumber}>{item.vehicleno}</Text>
-              <Text style={styles.congestionLevel}>{item.congestionLevel || "정보 없음"}</Text>
+              <Text style={[styles.busNumber, { color: getStationColor(item.congestionLevel) }]}>
+                {item.vehicleno}
+              </Text>
+              <Text
+                style={[styles.congestionLevel, { color: getStationColor(item.congestionLevel) }]}
+              >
+                {item.congestionLevel || "정보 없음"}
+              </Text>
             </View>
           )}
         </View>
@@ -193,36 +217,30 @@ export default function BusDetailPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8F5FF",
+    backgroundColor: Colors.background,
   },
   header: {
     padding: 20,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     marginBottom: 8,
     elevation: 2,
-    shadowColor: "#7E57C2",
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  lastUpdated: {
-    textAlign: "right",
-    fontSize: 12,
-    color: "#9E9E9E",
-    fontFamily: "System",
-    fontWeight: "500",
-  },
+
   toggleGroup: {
     flexDirection: "row",
     margin: 20,
     marginBottom: 12,
     borderRadius: 50,
-    backgroundColor: "#EDE7F6",
+    backgroundColor: Colors.sub,
     overflow: "hidden",
     elevation: 2,
-    shadowColor: "#7E57C2",
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
@@ -235,8 +253,8 @@ const styles = StyleSheet.create({
     borderRadius: 50,
   },
   activeButton: {
-    backgroundColor: "#7E57C2",
-    shadowColor: "#7E57C2",
+    backgroundColor: Colors.primary,
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
@@ -244,12 +262,12 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 14,
-    color: "#7E57C2",
+    color: Colors.primary,
     fontWeight: "600",
     fontFamily: "System",
   },
   activeButtonText: {
-    color: "#FFFFFF",
+    color: Colors.surface,
     fontWeight: "700",
   },
   listContent: {
@@ -260,20 +278,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     padding: 16,
     marginBottom: 8,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     elevation: 1,
-    shadowColor: "#7E57C2",
+    shadowColor: Colors.primary,
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
     shadowRadius: 2,
     borderWidth: 1,
-    borderColor: "#F3EBFF",
+    borderColor: Colors.secsub,
   },
   stationWithBus: {
-    backgroundColor: "#F3EBFF",
+    backgroundColor: Colors.secsub,
     borderLeftWidth: 4,
-    borderLeftColor: "#7E57C2",
+    borderLeftColor: Colors.primary,
     marginLeft: 20,
     elevation: 2,
   },
@@ -286,19 +304,19 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    backgroundColor: "#7E57C2",
+    backgroundColor: Colors.primary,
     marginBottom: 4,
     borderWidth: 2,
-    borderColor: "#F3E5F5",
+    borderColor: Colors.sub,
     zIndex: 2,
   },
   stationDot: {
     width: 12,
     height: 12,
     borderRadius: 6,
-    backgroundColor: "#D1C4E9",
+    backgroundColor: Colors.secsub, // 색상 매핑 대상 없어서 유지
     borderWidth: 2,
-    borderColor: "#F8F5FF",
+    borderColor: Colors.background,
     zIndex: 1,
   },
   stationLine: {
@@ -307,7 +325,7 @@ const styles = StyleSheet.create({
     top: 24,
     bottom: -16,
     width: 2,
-    backgroundColor: "#E1BEE7",
+    backgroundColor: Colors.secsub, // 색상 매핑 대상 없어서 유지
     zIndex: 0,
   },
   stationInfo: {
@@ -323,7 +341,7 @@ const styles = StyleSheet.create({
   busInfoContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F3E5F5",
+    backgroundColor: "white",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -332,14 +350,14 @@ const styles = StyleSheet.create({
   },
   busNumber: {
     fontSize: 14,
-    color: "#7E57C2",
+    color: Colors.primary,
     marginRight: 8,
     fontWeight: "700",
     fontFamily: "System",
   },
   congestionLevel: {
     fontSize: 12,
-    color: "#7E57C2",
+    color: Colors.primary,
     fontFamily: "System",
     fontWeight: "500",
   },

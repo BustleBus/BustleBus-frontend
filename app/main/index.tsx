@@ -1,32 +1,20 @@
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Divider } from "react-native-paper";
 import FavoriteRoute from "@/components/main/FavoriteRoute";
 import FavoriteBus from "@/components/main/FavoriteBus";
 import { useRouter } from "expo-router";
-import { sharedStyles } from "@/styles/shared";
+import { Colors, sharedStyles } from "@/styles/shared";
 import { useCallback, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";
-
-type FavoriteBusItem = {
-  busNumber: string;
-  busOrigin?: string;
-};
-
-type FavoriteRouteItem = {
-  startPlaceName: string;
-  endPlaceName: string;
-  startX: string;
-  startY: string;
-  endX: string;
-  endY: string;
-};
-
+import { FavoriteBusItem, FavoriteRouteItem } from "@/types/bus";
+import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 export default function Index() {
   const [favoriteRoutes, setFavoriteRoutes] = useState<FavoriteRouteItem[]>([]);
   const [favoriteBuses, setFavoriteBuses] = useState<FavoriteBusItem[]>([]);
   const router = useRouter();
-
+  console.log("favoriteBuses", favoriteBuses);
   useFocusEffect(
     useCallback(() => {
       const loadFavorites = async () => {
@@ -54,29 +42,78 @@ export default function Index() {
   );
 
   const handleFavoriteDelete = async (route: FavoriteRouteItem) => {
-    const updated = favoriteRoutes.filter(
-      item => !(item.startX === route.startX && item.endX === route.endX)
-    );
-    setFavoriteRoutes(updated);
-    await AsyncStorage.setItem("routeFavorite", JSON.stringify(updated));
+    try {
+      const updatedFavorites = favoriteRoutes.filter(
+        r => r.startPlaceName !== route.startPlaceName || r.endPlaceName !== route.endPlaceName
+      );
+      setFavoriteRoutes(updatedFavorites);
+      await AsyncStorage.setItem("routeFavorite", JSON.stringify(updatedFavorites));
+    } catch (e) {
+      console.error("❌ 경로 즐겨찾기 삭제 실패:", e);
+    }
   };
+
+  const handleBusFavoriteDelete = async (bus: FavoriteBusItem) => {
+    try {
+      const updatedFavorites = favoriteBuses.filter(
+        b => b.busNumber !== bus.busNumber || b.busOrigin !== bus.busOrigin
+      );
+      setFavoriteBuses(updatedFavorites);
+      await AsyncStorage.setItem("busFavorite", JSON.stringify(updatedFavorites));
+    } catch (e) {
+      console.error("❌ 버스 즐겨찾기 삭제 실패:", e);
+    }
+  };
+
+  const handleBusPress = async (bus: FavoriteBusItem) => {
+    try {
+      // Save selected bus to AsyncStorage
+      await AsyncStorage.setItem("selectedBus", JSON.stringify(bus));
+
+      // Navigate to bus detail page
+      router.push("/busDetailPage");
+    } catch (e) {
+      console.error("❌ 버스 정보 저장 실패:", e);
+    }
+  };
+
   return (
     <ScrollView>
       <View style={styles.body}>
-        <View style={{ flexDirection: "column" }}>
+        <View style={{ flexDirection: "row", justifyContent: "space-around", marginTop: 20 }}>
           <TouchableOpacity
             style={styles.menuButton}
             onPress={() => router.navigate("/searchRoute")}
           >
-            <Text>경로검색</Text>
+            <View style={{ alignItems: "center" }}>
+              <Ionicons name="navigate-outline" size={24} color="#333" />
+              <Text style={styles.menuText}>경로찾기</Text>
+            </View>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.menuButton} onPress={() => router.navigate("/searchBus")}>
-            <Text>버스번호 검색</Text>
+            <View style={{ alignItems: "center" }}>
+              <Ionicons name="search-outline" size={24} color="#333" />
+              <Text style={styles.menuText}>버스번호 검색</Text>
+            </View>
           </TouchableOpacity>
         </View>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>경로 즐겨 찾기</Text>
-          <Divider style={styles.divider} />
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
+            <LinearGradient
+              colors={[Colors.primary, Colors.secsub]}
+              style={{
+                width: 4,
+                height: 27,
+                marginTop: 5,
+                borderRadius: 2,
+                marginHorizontal: 8,
+              }}
+            />
+            <Ionicons name="heart" size={24} color="red" style={{ marginRight: 8, marginTop: 5 }} />
+            <Text style={styles.sectionTitle}>즐겨 찾는 경로</Text>
+          </View>
+
           <View style={sharedStyles.column}>
             {Array.from({ length: Math.ceil(favoriteRoutes.length / 2) }).map((_, rowIdx) => {
               const pair = favoriteRoutes.slice(rowIdx * 2, rowIdx * 2 + 2);
@@ -95,30 +132,43 @@ export default function Index() {
                 </View>
               );
             })}
+            {favoriteRoutes.length === 0 && (
+              <Text style={styles.emptyText}>저장된 경로가 없습니다</Text>
+            )}
           </View>
         </View>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>버스번호 즐겨찾기</Text>
-          <Divider style={styles.divider} />
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
+            <LinearGradient
+              colors={[Colors.primary, Colors.secsub]}
+              style={{
+                width: 4,
+                height: 27,
+                marginTop: 5,
+                borderRadius: 2,
+                marginHorizontal: 8,
+              }}
+            />
+            <Ionicons
+              name="bus-outline"
+              size={24}
+              color="#2563eb"
+              style={{ marginRight: 8, marginTop: 5 }}
+            />
+            <Text style={styles.sectionTitle}>즐겨찾는 버스</Text>
+          </View>
           <View style={sharedStyles.column}>
-            {Array.from({ length: Math.ceil(favoriteBuses.length / 2) }).map((_, rowIdx) => {
-              const pair = favoriteBuses.slice(rowIdx * 2, rowIdx * 2 + 2);
-              return (
-                <View key={rowIdx} style={sharedStyles.row}>
-                  {pair.map((bus, i) => (
-                    <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
-                      <FavoriteBus
-                        onPress={() => {
-                          console.log("Bus selected:", bus);
-                        }}
-                      >
-                        {bus.busNo}번
-                      </FavoriteBus>
-                    </View>
-                  ))}
-                </View>
-              );
-            })}
+            {favoriteBuses.map((bus, i) => (
+              <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
+                <FavoriteBus
+                  onPress={() => handleBusPress(bus)}
+                  onDelete={() => handleBusFavoriteDelete(bus)}
+                  busNo={bus.busNo}
+                  start={bus.busStartPoint}
+                  end={bus.busEndPoint}
+                />
+              </View>
+            ))}
             {favoriteBuses.length === 0 && (
               <Text style={styles.emptyText}>저장된 버스가 없습니다</Text>
             )}
@@ -139,16 +189,29 @@ const styles = StyleSheet.create({
   padding: {
     padding: 4,
   },
+
   menuButton: {
-    backgroundColor: "#e8def8",
-    marginHorizontal: 5,
-    marginVertical: 10,
-    padding: 20,
+    flex: 1,
+    paddingVertical: 16,
+    marginHorizontal: 8,
+    backgroundColor: Colors.sub, // 강조색과 어울리는 밝은 배경
+    borderRadius: 12,
     alignItems: "center",
-    borderRadius: 7,
-    borderColor: "#79747e",
-    borderWidth: 0.1,
+    justifyContent: "center",
+    elevation: 2,
+    shadowColor: Colors.primary, // 강조색 반영
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
   },
+
+  menuText: {
+    marginTop: 4,
+    fontSize: 14,
+    color: Colors.primary, // 강조 텍스트 색상
+    fontWeight: "700",
+  },
+
   section: {
     marginTop: 25,
   },
@@ -156,6 +219,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 10,
     height: 2,
+    backgroundColor: "#F9A825", // 강조선 색상
   },
   emptyText: {
     textAlign: "center",

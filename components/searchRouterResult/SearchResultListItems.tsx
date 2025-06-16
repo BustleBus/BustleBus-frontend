@@ -1,10 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import ListItemBox from "@/components/common/ListItemBox";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { useRouter } from "expo-router";
 
 interface SearchResultListItemsProps {
   time: string;
@@ -29,7 +26,7 @@ export default function SearchResultListItems({
             <View style={styles.card}>
               <View style={styles.leftSection}>
                 <Text style={styles.optimalText}>최적</Text>
-                <MaterialCommunityIcons name="bus" size={20} color="black" />
+                <Ionicons name="bus-outline" size={20} color="blue" style={{ marginTop: 2 }} />
                 <Text style={styles.timeText}>{time}</Text>
               </View>
               <View>

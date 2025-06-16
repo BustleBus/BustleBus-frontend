@@ -1,8 +1,8 @@
 import { StyleSheet, Text, View } from "react-native";
 import React from "react";
-import SearchLog from "@/components/common/SearchLog";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ListItemBox from "../common/ListItemBox";
 
 type SearchHistoryItem = {
   startPlaceName: string;
@@ -46,10 +46,7 @@ export default function RouterLog({
 
         // 🔄 특정 인덱스 삭제
         const updatedHistory = history.filter((_, i) => i !== index);
-        await AsyncStorage.setItem(
-          "search_history",
-          JSON.stringify(updatedHistory),
-        );
+        await AsyncStorage.setItem("search_history", JSON.stringify(updatedHistory));
         console.log("🔄 검색 히스토리 삭제 완료:", updatedHistory);
 
         // 🔄 부모에게 알리기
@@ -61,17 +58,21 @@ export default function RouterLog({
   };
 
   return (
-    <View>
-      <SearchLog onPress={handlePress} onClose={() => handleDelete(index)}>
-        <Text style={styles.logText}>{text}</Text>
-      </SearchLog>
+    <View style={styles.container}>
+      <ListItemBox onPress={handlePress} onRemove={() => handleDelete(index)}>
+        <Text numberOfLines={1} ellipsizeMode="tail">
+          🚩 {history.startPlaceName}
+        </Text>
+        <Text numberOfLines={1} ellipsizeMode="tail">
+          🏁 {history.endPlaceName}
+        </Text>
+      </ListItemBox>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  logText: {
-    flex: 1,
-    fontSize: 14,
+  container: {
+    marginVertical: 3,
   },
 });

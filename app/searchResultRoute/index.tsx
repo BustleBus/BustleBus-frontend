@@ -5,6 +5,9 @@ import axios from "axios";
 import SearchResultListItem from "@/components/searchRouterResult/SearchResultListItem";
 import SearchResultListItems from "@/components/searchRouterResult/SearchResultListItems";
 import { useRouter } from "expo-router";
+import { useAtom } from "jotai";
+import { loadingAtom } from "@/atoms/loadingState";
+import { Colors } from "@/styles/shared";
 
 export default function SearchResultRoute() {
   const [data, setData] = useState([]);
@@ -13,27 +16,36 @@ export default function SearchResultRoute() {
     firstBus: string;
     secondBus: string | null;
   }>({ firstBus: "", secondBus: null });
-  const fetchBusData = async (busNo: string) => {
-    const cityCode = await AsyncStorage.getItem("selectedCity");
-    if (!cityCode) {
-      console.error("도시 정보를 찾을 수 없습니다.");
-      return;
-    }
-    const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
-    const response = await axios.get(
-      `https://bustlebus.duckdns.org/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
-    );
-
-    console.log("API 응답 데이터:", response.data.result[0]);
-    await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
-    console.log("저장됨");
-    router.navigate("/busDetailPage");
-  };
   const router = useRouter();
+  const [, setLoading] = useAtom(loadingAtom);
+  const fetchBusData = async (busNo: string) => {
+    try {
+      setLoading(true);
+      const cityCode = await AsyncStorage.getItem("selectedCity");
+      if (!cityCode) {
+        console.error("도시 정보를 찾을 수 없습니다.");
+        return;
+      }
+      const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
+      const response = await axios.get(
+        `https://bustlebus.duckdns.org/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
+      );
+
+      console.log("API 응답 데이터:", response.data.result[0]);
+      await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
+      console.log("저장됨");
+      setLoading(false);
+      router.navigate("/busDetailPage");
+    } catch (error) {
+      console.error("버스 검색 중 오류 발생:", error);
+    }
+  };
+
   const removeBrackets = (str: string) => str.replace(/\s*\(.*?\)\s*/g, "").trim();
   useEffect(() => {
     const getData = async () => {
       try {
+        setLoading(true);
         const selectedBusString = await AsyncStorage.getItem("selectedBus");
 
         if (!selectedBusString) {
@@ -62,6 +74,8 @@ export default function SearchResultRoute() {
         setData(routeList);
       } catch (error) {
         console.error("❌ 버스 경로 요청 실패:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -72,29 +86,31 @@ export default function SearchResultRoute() {
     <>
       <ScrollView>
         <View style={styles.container}>
-          {data.map((route, index) =>
-            route.busSubPaths.length === 1 ? (
-              <SearchResultListItem
-                key={index}
-                time={`${route.totalTime}분`}
-                bus={`${route.busSubPaths[0].busOrigin}`}
-                crowdLevel=""
-                busNo={`${route.busSubPaths[0].busNo}`}
-              />
-            ) : (
-              <SearchResultListItems
-                key={index}
-                time={`${route.totalTime}분`}
-                firstBus={`${route.busSubPaths[0].busOrigin}`}
-                secondBus={`${route.busSubPaths[1]?.busOrigin ?? "?"}`}
-                crowdLevel=""
-                onPress={(firstBus, secondBus) => {
-                  setSelectedBuses({ firstBus, secondBus });
-                  setModalVisible(true);
-                }}
-              />
-            )
-          )}
+          {data.map((route, index) => (
+            <View key={index} style={{ paddingHorizontal: 2 }}>
+              {route.busSubPaths.length === 1 ? (
+                <SearchResultListItem
+                  key={route.busSubPaths[0].routeId}
+                  time={`${route.totalTime}분`}
+                  bus={`${route.busSubPaths[0].busOrigin}`}
+                  crowdLevel=""
+                  busNo={`${route.busSubPaths[0].busNo}`}
+                />
+              ) : (
+                <SearchResultListItems
+                  key={route.busSubPaths[0].routeId}
+                  time={`${route.totalTime}분`}
+                  firstBus={`${route.busSubPaths[0].busOrigin}`}
+                  secondBus={`${route.busSubPaths[1]?.busOrigin ?? "?"}`}
+                  crowdLevel=""
+                  onPress={(firstBus, secondBus) => {
+                    setSelectedBuses({ firstBus, secondBus });
+                    setModalVisible(true);
+                  }}
+                />
+              )}
+            </View>
+          ))}
         </View>
       </ScrollView>
 
@@ -142,6 +158,11 @@ export default function SearchResultRoute() {
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 5,
+    marginTop: 10,
+  },
   // Modal Styles
   modalOverlay: {
     flex: 1,

@@ -39,10 +39,10 @@ export default function FavoriteRoute({
   return (
     <ListItemBox onPress={handleClick} onRemove={onRemove}>
       <Text numberOfLines={1} ellipsizeMode="tail">
-        🚩{start}
+        🚩 {start}
       </Text>
       <Text numberOfLines={1} ellipsizeMode="tail">
-        🏁{end}
+        🏁 {end}
       </Text>
     </ListItemBox>
   );

@@ -5,10 +5,12 @@ import SearchTextInput from "@/components/common/SearchTextInput";
 import { Card, Divider } from "react-native-paper";
 import BusLog from "@/components/searchBus/BusLog";
 import SearchBusResult from "@/components/searchBus/SearchBusResult";
-import { DummyData } from "./dummyData";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import axios from "axios";
+import { useAtom } from "jotai";
+import { loadingAtom } from "@/atoms/loadingState";
 
 export default function SearchBus() {
   const [start, setStart] = useState("");
@@ -16,13 +18,15 @@ export default function SearchBus() {
   const [busLogs, setBusLogs] = useState<any[]>([]);
   const [busData, setBusData] = useState([]);
   const router = useRouter();
-  console.log(busData);
+  const [, setLoading] = useAtom(loadingAtom);
+  console.log("busLog", busLogs);
   const handleSearch = async (busNo: string) => {
     if (!busNo.trim()) {
       // 빈 검색어 처리
       return;
     }
     try {
+      setLoading(true);
       const cityCode = await AsyncStorage.getItem("selectedCity");
       if (!cityCode) {
         console.error("도시 정보를 찾을 수 없습니다.");
@@ -41,6 +45,8 @@ export default function SearchBus() {
       setIsSearch(true);
     } catch (error) {
       console.error("버스 검색 중 오류 발생:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -110,7 +116,7 @@ export default function SearchBus() {
           <SearchTextInput
             text={start}
             setText={text => setStart(text)}
-            placeholder={"버스 번호"}
+            placeholder={"버스 번호를 검색해 주세요"}
             keyboardType="number-pad"
             onSubmitEditing={() => handleSearch(start)} // 🔹 추가
             onBlur={() => {
@@ -131,14 +137,16 @@ export default function SearchBus() {
       <View style={styles.result}>
         {isSearch ? (
           <Card style={styles.card}>
-            {busData.result.map((item, index) => (
-              <SearchBusResult
-                key={item.busID}
-                bus={item.busNo}
-                routePath={item.location}
-                onPress={() => handleBusPress(item)}
-              />
-            ))}
+            {busData &&
+              busData.result.length > 0 &&
+              busData.result.map((item, index) => (
+                <SearchBusResult
+                  key={item.busID}
+                  bus={item.busNo}
+                  routePath={item.location}
+                  onPress={() => handleBusPress(item)}
+                />
+              ))}
           </Card>
         ) : (
           <ScrollView style={styles.result}>
@@ -146,13 +154,16 @@ export default function SearchBus() {
               <Text style={{ padding: 10 }}>최근 검색된 버스가 없습니다.</Text>
             ) : (
               busLogs.map((log, index) => (
-                <BusLog
-                  onPress={() => handlePressLog(log)}
-                  key={index}
-                  bus={log.busNo}
-                  routePath={log.location}
-                  onClose={() => handleRemoveLog(log.busID)}
-                />
+                <View style={styles.box} key={log.busID}>
+                  <BusLog
+                    onPress={() => handlePressLog(log)}
+                    key={log.busID}
+                    bus={log.busNo}
+                    start={log.busStartPoint}
+                    end={log.busEndPoint}
+                    onClose={() => handleRemoveLog(log.busID)}
+                  />
+                </View>
               ))
             )}
           </ScrollView>
@@ -190,13 +201,17 @@ const styles = StyleSheet.create({
     pointerEvents: "none",
   },
   result: {
+    paddingHorizontal: 1,
     flex: 1, // 카드나 로그가 차지할 공간
     paddingTop: 5,
   },
   card: {
     flexDirection: "row",
     flex: 1, // 카드 자체도 최대 확장
-    padding: 16,
+    padding: 8,
     backgroundColor: "white",
+  },
+  box: {
+    marginVertical: 5,
   },
 });

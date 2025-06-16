@@ -1,9 +1,11 @@
 import { StyleSheet, Text, View } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import ListItemBox from "@/components/common/ListItemBox";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import { loadingAtom } from "@/atoms/loadingState";
+import { useAtom } from "jotai";
 
 export default function SearchResultListItem({
   time,
@@ -16,23 +18,32 @@ export default function SearchResultListItem({
   crowdLevel: string;
   busNo: string;
 }) {
+  const [, setLoading] = useAtom(loadingAtom);
   const fetchBusData = async () => {
-    const cityCode = await AsyncStorage.getItem("selectedCity");
-    if (!cityCode) {
-      console.error("도시 정보를 찾을 수 없습니다.");
-      return;
-    }
-    const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
-    console.log("버스번호:", busNo);
-    console.log("도시 코드:", odsayCityCode);
-    const response = await axios.get(
-      `https://bustlebus.duckdns.org/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
-    );
+    try {
+      setLoading(true);
 
-    console.log("API 응답 데이터:", response.data.result[0]);
-    await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
-    console.log("저장됨");
-    router.navigate("/busDetailPage");
+      const cityCode = await AsyncStorage.getItem("selectedCity");
+
+      if (!cityCode) {
+        console.error("도시 정보를 찾을 수 없습니다.");
+        return;
+      }
+      const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
+      console.log("버스번호:", busNo);
+      console.log("도시 코드:", odsayCityCode);
+      const response = await axios.get(
+        `https://bustlebus.duckdns.org/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
+      );
+
+      console.log("API 응답 데이터:", response.data.result[0]);
+      await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
+      console.log("저장됨");
+      setLoading(false);
+      router.navigate("/busDetailPage");
+    } catch (error) {
+      console.error("버스 검색 중 오류 발생:", error);
+    }
   };
   const router = useRouter();
   return (
@@ -46,7 +57,7 @@ export default function SearchResultListItem({
         <View style={styles.card}>
           <View style={styles.leftSection}>
             <Text style={styles.optimalText}>최적</Text>
-            <MaterialCommunityIcons name="bus" size={20} color="black" />
+            <Ionicons name="bus-outline" size={20} color="blue" style={{ marginTop: 2 }} />
             <Text style={styles.timeText}>{time}</Text>
           </View>
           <View>
