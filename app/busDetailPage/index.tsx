@@ -66,7 +66,7 @@ export default function BusDetailPage() {
             nodeord: Number(station.idx),
             nodeid: bus?.nodeId,
             vehicleno: bus?.vehicleNo,
-            congestionLevel: bus ? "정보 없음" : undefined,
+            congestionLevel: bus?.congestionLevel ?? "정보 없음", // ← 수정
             direction: "startPoint",
           };
         });
@@ -79,7 +79,7 @@ export default function BusDetailPage() {
             nodeord: Number(station.idx),
             nodeid: bus?.nodeId,
             vehicleno: bus?.vehicleNo,
-            congestionLevel: bus ? "정보 없음" : undefined,
+            congestionLevel: bus?.congestionLevel ?? "정보 없음", // ← 수정
             direction: "endPoint",
           };
         });
@@ -106,7 +106,18 @@ export default function BusDetailPage() {
 
   const renderItem = ({ item }: { item: any }) => {
     const hasBus = !!item.vehicleno;
-
+    const getStationColor = (level: string) => {
+      switch (level) {
+        case "여유":
+          return "#81C784"; // 초록색
+        case "보통":
+          return "#F57F17"; // 주황색
+        case "혼잡":
+          return "red"; // 빨간색
+        default:
+          return Colors.secsub; // 기본 회색
+      }
+    };
     return (
       <View style={[styles.stationItem, hasBus && styles.stationWithBus]}>
         <View style={styles.stationMarker}>
@@ -118,8 +129,14 @@ export default function BusDetailPage() {
           <Text style={styles.stationName}>{item.nodenm || `정류장 ${item.nodeord}`}</Text>
           {hasBus && (
             <View style={styles.busInfoContainer}>
-              <Text style={styles.busNumber}>{item.vehicleno}</Text>
-              <Text style={styles.congestionLevel}>{item.congestionLevel || "정보 없음"}</Text>
+              <Text style={[styles.busNumber, { color: getStationColor(item.congestionLevel) }]}>
+                {item.vehicleno}
+              </Text>
+              <Text
+                style={[styles.congestionLevel, { color: getStationColor(item.congestionLevel) }]}
+              >
+                {item.congestionLevel || "정보 없음"}
+              </Text>
             </View>
           )}
         </View>
@@ -324,7 +341,7 @@ const styles = StyleSheet.create({
   busInfoContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: Colors.sub,
+    backgroundColor: "white",
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,

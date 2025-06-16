@@ -8,11 +8,13 @@
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
@@ -33,11 +35,22 @@
 
     "assetBundlePatterns": ["**/*"],
 
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "preventAutoHide": true,
+          "image": "./assets/images/splash.png",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
 
     "experiments": {
       "typedRoutes": true
     },
+
     "extra": {
       "router": {},
       "eas": {

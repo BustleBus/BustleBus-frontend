@@ -45,7 +45,8 @@
     "react-native-screens": "~4.11.1",
     "react-native-web": "^0.20.0",
     "expo-linear-gradient": "~14.1.5",
-    "jest-expo": "~53.0.7"
+    "jest-expo": "~53.0.7",
+    "expo-splash-screen": "~0.30.9"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
