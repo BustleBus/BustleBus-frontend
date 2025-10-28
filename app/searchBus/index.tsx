@@ -36,7 +36,7 @@ export default function SearchBus() {
       const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
       console.log("busNo", busNo, "odsayCityCode", odsayCityCode);
       const response = await axios.get(
-        `https://bustlebus.duckdns.org/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
+        `${process.env.EXPO_PUBLIC_API_URL}/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
       );
 
       console.log("API 응답 데이터:", response.data);

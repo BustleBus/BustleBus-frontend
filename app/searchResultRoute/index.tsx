@@ -28,7 +28,7 @@ export default function SearchResultRoute() {
       }
       const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
       const response = await axios.get(
-        `https://bustlebus.duckdns.org/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
+        `${process.env.EXPO_PUBLIC_API_URL}/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
       );
 
       console.log("API 응답 데이터:", response.data.result[0]);
@@ -60,7 +60,7 @@ export default function SearchResultRoute() {
         }
 
         const response = await axios.get(
-          `https://bustlebus.duckdns.org/api/v1/searchBusRoutes?SX=${startX}&SY=${startY}&EX=${endX}&EY=${endY}`
+          `${process.env.EXPO_PUBLIC_API_URL}/api/v1/searchBusRoutes?SX=${startX}&SY=${startY}&EX=${endX}&EY=${endY}`
         );
 
         const routeList = response?.data?.result?.result;

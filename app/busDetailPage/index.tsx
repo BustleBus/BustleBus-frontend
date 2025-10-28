@@ -44,7 +44,7 @@ export default function BusDetailPage() {
         const cityCode = JSON.parse(cityCodeStr).TagoCityCode;
 
         const response = await axios.get(
-          `https://bustlebus.duckdns.org/api/v1/searchLocation?busNo=${selectedBus.busNo}&cityCode=${cityCode}`
+          `${process.env.EXPO_PUBLIC_API_URL}/api/v1/searchLocation?busNo=${selectedBus.busNo}&cityCode=${cityCode}`
         );
 
         console.log(response.data.result);

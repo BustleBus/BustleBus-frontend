@@ -33,7 +33,7 @@ export default function SearchResultListItem({
       console.log("버스번호:", busNo);
       console.log("도시 코드:", odsayCityCode);
       const response = await axios.get(
-        `https://bustlebus.duckdns.org/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
+        `${process.env.EXPO_PUBLIC_API_URL}/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
       );
 
       console.log("API 응답 데이터:", response.data.result[0]);

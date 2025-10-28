@@ -86,7 +86,7 @@ export default function SearchRoute() {
       try {
         setLoading(true);
         const response = await axios.get(
-          `https://bustlebus.duckdns.org/api/v1/searchPlace?query=${inputText}`
+          `${process.env.EXPO_PUBLIC_API_URL}/api/v1/searchPlace?query=${inputText}`
         );
         const results = response.data.results || [];
         setSearchResult(results);

@@ -49,7 +49,7 @@ export default function Setup() {
           console.log("로컬 데이터 사용");
         } else {
           const response = await axios.get<{ result: CityCode[] }>(
-            "https://bustlebus.duckdns.org/api/v1/searchCity"
+            `${process.env.EXPO_PUBLIC_API_URL}/api/v1/searchCity`
           );
           const data = response.data.result;
           setCityCodes(data);
