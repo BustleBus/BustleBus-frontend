@@ -14,7 +14,7 @@
         "buildType": "apk"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://bustlebus-backend.onrender.com"
+        "EXPO_PUBLIC_API_URL": "https://bustlebus-api-198875705973.asia-northeast3.run.app"
       }
     },
     "production": {
