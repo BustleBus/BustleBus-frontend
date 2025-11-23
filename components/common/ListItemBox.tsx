@@ -43,19 +43,19 @@ export const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: "white",
     padding: 15,
-    borderRadius: 10,
-    borderColor: "#ebe4ed",
-    borderWidth: 0.5,
+    borderRadius: 20,
+    borderColor: "#F0F0F0",
+    borderWidth: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
 
     // 👇 그림자 추가
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3, // Android 전용
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4, // Android 전용
   },
   ListItemCloseBtn: {
     justifyContent: "flex-end",

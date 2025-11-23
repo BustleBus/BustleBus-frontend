@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import ListItemBox from "@/components/common/ListItemBox";
+import { Colors } from "@/styles/shared";
 
 interface SearchResultListItemsProps {
   time: string;
@@ -48,48 +49,53 @@ export default function SearchResultListItems({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 5,
+    marginVertical: 6,
   },
   card: {
     flexDirection: "row",
     justifyContent: "space-between",
-    borderRadius: 16,
-    borderColor: "black",
     alignItems: "center",
-    shadowOffset: { width: 0, height: 2 },
   },
   leftSection: {
     alignItems: "center",
+    marginRight: 16,
+    backgroundColor: "#F0F4F8",
+    padding: 8,
+    borderRadius: 12,
+    minWidth: 60,
   },
   rightSection: {
     alignItems: "flex-end",
   },
   optimalText: {
-    color: "#555",
+    color: Colors.primary,
     marginBottom: 4,
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: "700",
   },
   timeText: {
-    color: "#555",
+    color: Colors.text,
     marginTop: 4,
     fontSize: 14,
+    fontWeight: "700",
   },
   routeText: {
-    color: "#000",
+    color: Colors.text,
     fontSize: 16,
+    fontWeight: "600",
+    flex: 1,
   },
-
   routeMultiView: {
-    color: "#000",
     flexDirection: "column",
+    gap: 2,
   },
   crowdText: {
-    color: "#d32f2f",
-    fontWeight: "bold",
-    fontSize: 16,
+    color: Colors.primary,
+    fontWeight: "700",
+    fontSize: 14,
   },
   modalButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: Colors.secsub,
     padding: 15,
     borderRadius: 8,
     marginVertical: 5,

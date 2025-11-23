@@ -17,9 +17,11 @@ export const sharedStyles = StyleSheet.create({
 });
 
 export const Colors = {
-  background: "#F4F9FF",
-  primary: "#F57F17",
+  background: "#F7F9FC", // Bright Cool White
+  primary: "#FF6B6B", // Vibrant Coral
   surface: "#FFFFFF",
-  sub: "#fffde7",
-  secsub: "#FFCA5F",
+  sub: "#FFEAA7", // Cream Yellow
+  secsub: "#48DBFB", // Bright Cyan
+  text: "#2F3542",
+  textSub: "#747D8C",
 };

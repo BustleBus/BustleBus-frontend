@@ -60,12 +60,28 @@ export default function RouterLog({
   return (
     <View style={styles.container}>
       <ListItemBox onPress={handlePress} onRemove={() => handleDelete(index)}>
-        <Text numberOfLines={1} ellipsizeMode="tail">
-          🚩 {history.startPlaceName}
-        </Text>
-        <Text numberOfLines={1} ellipsizeMode="tail">
-          🏁 {history.endPlaceName}
-        </Text>
+        <View style={{ gap: 4 }}>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={{ fontSize: 16, marginRight: 6 }}>🚩</Text>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={{ fontSize: 16, fontWeight: "600", color: "#2F3542", flex: 1 }}
+            >
+              {history.startPlaceName}
+            </Text>
+          </View>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={{ fontSize: 16, marginRight: 6 }}>🏁</Text>
+            <Text
+              numberOfLines={1}
+              ellipsizeMode="tail"
+              style={{ fontSize: 16, fontWeight: "600", color: "#2F3542", flex: 1 }}
+            >
+              {history.endPlaceName}
+            </Text>
+          </View>
+        </View>
       </ListItemBox>
     </View>
   );

@@ -86,31 +86,31 @@ export default function Index() {
             onPress={() => router.navigate("/searchRoute")}
           >
             <View style={{ alignItems: "center" }}>
-              <Ionicons name="navigate-outline" size={24} color="#333" />
+              <Ionicons name="navigate" size={32} color={Colors.primary} />
               <Text style={styles.menuText}>경로찾기</Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.menuButton} onPress={() => router.navigate("/searchBus")}>
             <View style={{ alignItems: "center" }}>
-              <Ionicons name="search-outline" size={24} color="#333" />
+              <Ionicons name="search" size={32} color={Colors.secsub} />
               <Text style={styles.menuText}>버스번호 검색</Text>
             </View>
           </TouchableOpacity>
         </View>
         <View style={styles.section}>
-          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 15 }}>
             <LinearGradient
               colors={[Colors.primary, Colors.secsub]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={{
-                width: 4,
-                height: 27,
-                marginTop: 5,
-                borderRadius: 2,
-                marginHorizontal: 8,
+                width: 6,
+                height: 24,
+                borderRadius: 4,
+                marginRight: 10,
               }}
             />
-            <Ionicons name="heart" size={24} color="red" style={{ marginRight: 8, marginTop: 5 }} />
             <Text style={styles.sectionTitle}>즐겨 찾는 경로</Text>
           </View>
 
@@ -138,22 +138,17 @@ export default function Index() {
           </View>
         </View>
         <View style={styles.section}>
-          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 10 }}>
+          <View style={{ flexDirection: "row", alignItems: "center", marginBottom: 15 }}>
             <LinearGradient
-              colors={[Colors.primary, Colors.secsub]}
+              colors={[Colors.secsub, Colors.primary]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={{
-                width: 4,
-                height: 27,
-                marginTop: 5,
-                borderRadius: 2,
-                marginHorizontal: 8,
+                width: 6,
+                height: 24,
+                borderRadius: 4,
+                marginRight: 10,
               }}
-            />
-            <Ionicons
-              name="bus-outline"
-              size={24}
-              color="#2563eb"
-              style={{ marginRight: 8, marginTop: 5 }}
             />
             <Text style={styles.sectionTitle}>즐겨찾는 버스</Text>
           </View>
@@ -163,9 +158,9 @@ export default function Index() {
                 <FavoriteBus
                   onPress={() => handleBusPress(bus)}
                   onDelete={() => handleBusFavoriteDelete(bus)}
-                  busNo={bus.busNo}
-                  start={bus.busStartPoint}
-                  end={bus.busEndPoint}
+                  busNo={bus.busNumber}
+                  start={bus.busOrigin}
+                  end={undefined}
                 />
               </View>
             ))}
@@ -192,42 +187,48 @@ const styles = StyleSheet.create({
 
   menuButton: {
     flex: 1,
-    paddingVertical: 16,
+    paddingVertical: 20,
     marginHorizontal: 8,
-    backgroundColor: Colors.sub, // 강조색과 어울리는 밝은 배경
-    borderRadius: 12,
+    backgroundColor: Colors.surface,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 2,
-    shadowColor: Colors.primary, // 강조색 반영
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    elevation: 4,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
   },
 
   menuText: {
-    marginTop: 4,
-    fontSize: 14,
-    color: Colors.primary, // 강조 텍스트 색상
+    marginTop: 8,
+    fontSize: 16,
+    color: Colors.text,
     fontWeight: "700",
   },
 
   section: {
-    marginTop: 25,
+    marginTop: 30,
+    paddingHorizontal: 5,
   },
   divider: {
     marginTop: 5,
     marginBottom: 10,
     height: 2,
-    backgroundColor: "#F9A825", // 강조선 색상
+    backgroundColor: Colors.sub,
   },
   emptyText: {
     textAlign: "center",
-    marginTop: 10,
-    color: "#666",
+    marginTop: 20,
+    color: Colors.textSub,
+    fontSize: 14,
   },
   sectionTitle: {
-    fontSize: 15,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "800",
+    color: Colors.text,
+    letterSpacing: -0.5,
   },
 });

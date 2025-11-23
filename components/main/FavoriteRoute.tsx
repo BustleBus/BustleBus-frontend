@@ -1,4 +1,4 @@
-import { Text } from "react-native";
+import { Text, View } from "react-native";
 import ListItemBox from "@/components/common/ListItemBox";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -38,12 +38,28 @@ export default function FavoriteRoute({
 
   return (
     <ListItemBox onPress={handleClick} onRemove={onRemove}>
-      <Text numberOfLines={1} ellipsizeMode="tail">
-        🚩 {start}
-      </Text>
-      <Text numberOfLines={1} ellipsizeMode="tail">
-        🏁 {end}
-      </Text>
+      <View style={{ gap: 4 }}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={{ fontSize: 16, marginRight: 6 }}>🚩</Text>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={{ fontSize: 16, fontWeight: "600", color: "#2F3542", flex: 1 }}
+          >
+            {start}
+          </Text>
+        </View>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={{ fontSize: 16, marginRight: 6 }}>🏁</Text>
+          <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
+            style={{ fontSize: 16, fontWeight: "600", color: "#2F3542", flex: 1 }}
+          >
+            {end}
+          </Text>
+        </View>
+      </View>
     </ListItemBox>
   );
 }

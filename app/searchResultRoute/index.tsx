@@ -10,7 +10,7 @@ import { loadingAtom } from "@/atoms/loadingState";
 import { Colors } from "@/styles/shared";
 
 export default function SearchResultRoute() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedBuses, setSelectedBuses] = useState<{
     firstBus: string;
@@ -171,56 +171,57 @@ const styles = StyleSheet.create({
   },
 
   modalContent: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
     paddingHorizontal: 24,
     paddingTop: 32,
-    paddingBottom: 16,
+    paddingBottom: 32,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 5,
+    shadowRadius: 12,
+    elevation: 20,
   },
 
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 20,
-    color: "#333",
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 24,
+    color: Colors.text,
     textAlign: "center",
   },
 
   busOptionButton: {
-    backgroundColor: "#f0f0f5",
-    paddingVertical: 14,
+    backgroundColor: Colors.background,
+    paddingVertical: 16,
     paddingHorizontal: 20,
-    borderRadius: 12,
+    borderRadius: 16,
     width: "100%",
-    marginBottom: 10,
+    marginBottom: 12,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
   },
 
   busText: {
-    fontSize: 16,
-    color: "#222",
-    fontWeight: "500",
+    fontSize: 18,
+    color: Colors.text,
+    fontWeight: "600",
   },
 
   cancelButton: {
-    marginTop: 8,
-    paddingVertical: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#ccc",
+    marginTop: 12,
+    paddingVertical: 16,
+    borderRadius: 16,
+    backgroundColor: "#F1F3F5",
     width: "100%",
     alignItems: "center",
   },
 
   cancelText: {
-    color: "#888",
-    fontSize: 15,
-    fontWeight: "500",
+    color: Colors.textSub,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
