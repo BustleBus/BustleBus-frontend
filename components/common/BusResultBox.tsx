@@ -45,27 +45,36 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   busNumberBox: {
-    backgroundColor: Colors.primary, // 파란 배경
-    borderRadius: 8,
-    width: 36,
-    height: 36,
+    backgroundColor: Colors.primary, // 파란 배경 -> 이제 Coral
+    borderRadius: 12,
+    width: 44,
+    height: 44,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 10,
+    marginRight: 12,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   busNumberText: {
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "800",
+    fontSize: 16,
   },
   infoContainer: {
     flexDirection: "column",
   },
   busLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 18,
+    fontWeight: "700",
+    color: Colors.text,
+    marginBottom: 2,
   },
   routeLabel: {
-    fontSize: 13,
-    color: "#555",
+    fontSize: 14,
+    color: Colors.textSub,
+    fontWeight: "500",
   },
 });

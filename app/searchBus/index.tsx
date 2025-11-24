@@ -11,12 +11,13 @@ import { useRouter } from "expo-router";
 import axios from "axios";
 import { useAtom } from "jotai";
 import { loadingAtom } from "@/atoms/loadingState";
+import { Colors } from "@/styles/shared";
 
 export default function SearchBus() {
   const [start, setStart] = useState("");
   const [isSearch, setIsSearch] = useState(false);
   const [busLogs, setBusLogs] = useState<any[]>([]);
-  const [busData, setBusData] = useState([]);
+  const [busData, setBusData] = useState<any>(null); // Fix type
   const router = useRouter();
   const [, setLoading] = useAtom(loadingAtom);
   console.log("busLog", busLogs);
@@ -82,6 +83,7 @@ export default function SearchBus() {
       );
 
       await AsyncStorage.setItem("BusLog", JSON.stringify(updatedLogs));
+      await AsyncStorage.removeItem("routeContext"); // Clear route context
       router.navigate("/busDetailPage");
     } catch (error) {
       console.error("Error saving bus log:", error);
@@ -103,6 +105,7 @@ export default function SearchBus() {
   const handlePressLog = async (item: any) => {
     try {
       await AsyncStorage.setItem("selectedBus", JSON.stringify(item));
+      await AsyncStorage.removeItem("routeContext"); // Clear route context
     } catch (error) {
       console.error("Error saving bus log:", error);
     }
@@ -128,7 +131,7 @@ export default function SearchBus() {
           />
         </View>
         <TouchableOpacity style={styles.searchButton} onPress={() => handleSearch(start)}>
-          <Ionicons name="search" size={24} color="#000" />
+          <Ionicons name="search" size={24} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -191,7 +194,15 @@ const styles = StyleSheet.create({
   searchButton: {
     justifyContent: "center",
     alignItems: "center",
-    padding: 10,
+    padding: 12,
+    backgroundColor: Colors.primary,
+    borderRadius: 24,
+    marginLeft: 8,
+    shadowColor: Colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
 
   hidden: {
@@ -206,10 +217,10 @@ const styles = StyleSheet.create({
     paddingTop: 5,
   },
   card: {
-    flexDirection: "row",
+    flexDirection: "column",
     flex: 1, // 카드 자체도 최대 확장
-    padding: 8,
-    backgroundColor: "white",
+    padding: 0,
+    backgroundColor: "transparent",
   },
   box: {
     marginVertical: 5,

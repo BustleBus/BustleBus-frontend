@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import ListItemBox from "@/components/common/ListItemBox";
+import { Colors } from "@/styles/shared";
 
 interface SearchResultListItemsProps {
   time: string;
@@ -25,14 +26,13 @@ export default function SearchResultListItems({
           <ListItemBox showClose={false} onPress={() => onPress(firstBus, secondBus)}>
             <View style={styles.card}>
               <View style={styles.leftSection}>
-                <Text style={styles.optimalText}>최적</Text>
                 <Ionicons name="bus-outline" size={20} color="blue" style={{ marginTop: 2 }} />
                 <Text style={styles.timeText}>{time}</Text>
               </View>
               <View>
                 <View style={styles.routeMultiView}>
-                  <Text>{firstBus}</Text>
-                  <Text>{secondBus}</Text>
+                  <Text style={styles.routeText}>{firstBus}</Text>
+                  <Text style={styles.routeText}>{secondBus}</Text>
                 </View>
               </View>
               <View style={styles.rightSection}>
@@ -48,48 +48,55 @@ export default function SearchResultListItems({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 5,
+    marginVertical: 6,
   },
   card: {
     flexDirection: "row",
     justifyContent: "space-between",
-    borderRadius: 16,
-    borderColor: "black",
     alignItems: "center",
-    shadowOffset: { width: 0, height: 2 },
   },
   leftSection: {
     alignItems: "center",
+    marginRight: 16,
+    backgroundColor: "#F0F4F8",
+    padding: 8,
+    borderRadius: 12,
+    minWidth: 60,
   },
   rightSection: {
     alignItems: "flex-end",
   },
   optimalText: {
-    color: "#555",
+    color: Colors.primary,
     marginBottom: 4,
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: "700",
   },
   timeText: {
-    color: "#555",
+    color: Colors.text,
     marginTop: 4,
     fontSize: 14,
+    fontWeight: "700",
   },
   routeText: {
-    color: "#000",
+    color: Colors.text,
     fontSize: 16,
+    fontWeight: "700",
+    flex: 1,
+    textAlign: "center",
   },
-
   routeMultiView: {
-    color: "#000",
     flexDirection: "column",
+    gap: 2,
+    alignItems: "center",
   },
   crowdText: {
-    color: "#d32f2f",
-    fontWeight: "bold",
-    fontSize: 16,
+    color: Colors.primary,
+    fontWeight: "700",
+    fontSize: 14,
   },
   modalButton: {
-    backgroundColor: "#2196F3",
+    backgroundColor: Colors.secsub,
     padding: 15,
     borderRadius: 8,
     marginVertical: 5,

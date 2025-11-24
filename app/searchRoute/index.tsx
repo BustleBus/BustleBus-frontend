@@ -7,6 +7,7 @@ import RouterLog from "@/components/routerLog/RouterLog";
 import axios from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import { Colors } from "@/styles/shared";
 
 type SearchResultItem = {
   road_address_name: string;
@@ -265,6 +266,7 @@ const styles = StyleSheet.create({
   body: {
     flex: 1,
     padding: 10,
+    backgroundColor: Colors.background,
   },
   search: {
     marginBottom: 10,
@@ -280,7 +282,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   card: {
-    padding: 16,
-    backgroundColor: "white",
+    padding: 0,
+    backgroundColor: "transparent",
+    elevation: 0,
   },
 });

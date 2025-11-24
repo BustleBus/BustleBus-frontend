@@ -6,17 +6,22 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { loadingAtom } from "@/atoms/loadingState";
 import { useAtom } from "jotai";
+import { Colors } from "@/styles/shared";
 
 export default function SearchResultListItem({
   time,
   bus,
   crowdLevel,
   busNo,
+  startName,
+  endName,
 }: {
   time: string;
   bus: string;
   crowdLevel: string;
   busNo: string;
+  startName?: string;
+  endName?: string;
 }) {
   const [, setLoading] = useAtom(loadingAtom);
   const fetchBusData = async () => {
@@ -38,6 +43,18 @@ export default function SearchResultListItem({
 
       console.log("API 응답 데이터:", response.data.result[0]);
       await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
+      
+      // Store route context if coming from route search
+      if (startName && endName) {
+        await AsyncStorage.setItem("routeContext", JSON.stringify({
+          startName,
+          endName,
+          fromRouteSearch: true
+        }));
+      } else {
+        await AsyncStorage.removeItem("routeContext");
+      }
+      
       console.log("저장됨");
       setLoading(false);
       router.navigate("/busDetailPage");
@@ -56,11 +73,10 @@ export default function SearchResultListItem({
       >
         <View style={styles.card}>
           <View style={styles.leftSection}>
-            <Text style={styles.optimalText}>최적</Text>
             <Ionicons name="bus-outline" size={20} color="blue" style={{ marginTop: 2 }} />
             <Text style={styles.timeText}>{time}</Text>
           </View>
-          <View>
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
             <Text style={styles.routeText}>
               <Text>{bus}</Text>
             </Text>
@@ -76,44 +92,51 @@ export default function SearchResultListItem({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 5,
+    marginVertical: 6,
   },
   card: {
     flexDirection: "row",
     justifyContent: "space-between",
-    borderRadius: 16,
-    borderColor: "black",
     alignItems: "center",
-    shadowOffset: { width: 0, height: 2 },
   },
   leftSection: {
     alignItems: "center",
+    marginRight: 16,
+    backgroundColor: "#F0F4F8",
+    padding: 8,
+    borderRadius: 12,
+    minWidth: 60,
   },
   rightSection: {
     alignItems: "flex-end",
   },
   optimalText: {
-    color: "#555",
+    color: Colors.primary,
     marginBottom: 4,
-    fontSize: 14,
+    fontSize: 12,
+    fontWeight: "700",
   },
   timeText: {
-    color: "#555",
+    color: Colors.text,
     marginTop: 4,
     fontSize: 14,
+    fontWeight: "700",
   },
   routeText: {
-    color: "#000",
+    color: Colors.text,
     fontSize: 16,
+    fontWeight: "700",
+    flex: 1,
+    justifyContent: "center",
+    textAlignVertical: "center",
   },
-
   routeMultiView: {
-    color: "#000",
+    color: Colors.text,
     flexDirection: "column",
   },
   crowdText: {
-    color: "#d32f2f",
-    fontWeight: "bold",
-    fontSize: 16,
+    color: Colors.primary,
+    fontWeight: "700",
+    fontSize: 14,
   },
 });
