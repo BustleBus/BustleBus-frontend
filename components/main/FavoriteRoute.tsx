@@ -27,9 +27,7 @@ export default function FavoriteRoute({
 
   const handleClick = async () => {
     try {
-      console.log("route", route);
       await AsyncStorage.setItem("selectedBus", JSON.stringify(route));
-      console.log("✅ selectedBus 저장 완료:", route);
       router.push("/searchResultRoute"); // 또는 navigate
     } catch (e) {
       console.error("❌ selectedBus 저장 실패:", e);

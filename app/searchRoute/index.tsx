@@ -59,11 +59,9 @@ export default function SearchRoute() {
     const loadSearchHistory = async () => {
       try {
         const storedValue = await AsyncStorage.getItem("search_history");
-        console.log("storedValue", storedValue);
         if (storedValue !== null) {
           const history = JSON.parse(storedValue) as SearchHistoryItem[];
           setSearchHistory(history);
-          console.log("🔄 검색 히스토리 로드:", history);
         }
       } catch (e) {
         console.error("Error loading search history:", e);
@@ -112,22 +110,17 @@ export default function SearchRoute() {
   // 🔄 장소 선택 처리
   const handlePlaceSelect = async (item: SearchResultItem) => {
     isSelectingRef.current = true;
-    console.log("장소 선택 처리");
     // 출발지 선택시
     if (focusTarget === "start") {
-      console.log(item.place_name);
       setStartX(item.x);
       setStartY(item.y);
       setStartPlaceName(item.place_name);
       setStartRoadAddress(item.road_address_name);
-      console.log("start");
     } else if (focusTarget === "end") {
-      // 목적지 선택시
       setEndX(item.x);
       setEndY(item.y);
       setEndPlaceName(item.place_name);
       setEndRoadAddress(item.road_address_name);
-      console.log("end");
       if (startX !== "" && startY !== "" && item.x !== "" && item.y !== "") {
         try {
           const newHistoryItem: SearchHistoryItem = {
@@ -156,7 +149,6 @@ export default function SearchRoute() {
 
           // 📦 AsyncStorage에 저장
           await AsyncStorage.setItem("search_history", JSON.stringify(updatedHistory));
-          console.log("🔄 검색 히스토리 저장:", newHistoryItem);
           await AsyncStorage.setItem(
             "selectedBus",
             JSON.stringify({

@@ -14,7 +14,6 @@ export default function Index() {
   const [favoriteRoutes, setFavoriteRoutes] = useState<FavoriteRouteItem[]>([]);
   const [favoriteBuses, setFavoriteBuses] = useState<FavoriteBusItem[]>([]);
   const router = useRouter();
-  console.log("favoriteBuses", favoriteBuses);
   useFocusEffect(
     useCallback(() => {
       const loadFavorites = async () => {

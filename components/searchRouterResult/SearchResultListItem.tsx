@@ -35,13 +35,10 @@ export default function SearchResultListItem({
         return;
       }
       const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
-      console.log("버스번호:", busNo);
-      console.log("도시 코드:", odsayCityCode);
       const response = await axios.get(
         `${process.env.EXPO_PUBLIC_API_URL}/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
       );
 
-      console.log("API 응답 데이터:", response.data.result[0]);
       await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
       
       // Store route context if coming from route search
@@ -55,7 +52,6 @@ export default function SearchResultListItem({
         await AsyncStorage.removeItem("routeContext");
       }
       
-      console.log("저장됨");
       setLoading(false);
       router.navigate("/busDetailPage");
     } catch (error) {

@@ -46,7 +46,6 @@ export default function Setup() {
         if (storedData) {
           const parsedData = JSON.parse(storedData) as CityCode[];
           setCityCodes(parsedData);
-          console.log("로컬 데이터 사용");
         } else {
           const response = await axios.get<{ result: CityCode[] }>(
             `${process.env.EXPO_PUBLIC_API_URL}/api/v1/searchCity`
@@ -54,7 +53,6 @@ export default function Setup() {
           const data = response.data.result;
           setCityCodes(data);
           await AsyncStorage.setItem(CITY_STORAGE_KEY, JSON.stringify(data));
-          console.log("서버 데이터 저장 완료");
         }
       } catch (error) {
         console.error("도시 데이터 로드 에러:", error);
@@ -70,7 +68,6 @@ export default function Setup() {
     try {
       await AsyncStorage.setItem(SELECTED_CITY_KEY, JSON.stringify(city));
       await AsyncStorage.setItem("hasCompletedSetup", "true");
-      console.log("선택된 도시 저장:", city);
       router.replace("/main");
     } catch (error) {
       console.error("도시 저장 오류:", error);

@@ -31,9 +31,7 @@ export default function SearchResultRoute() {
         `${process.env.EXPO_PUBLIC_API_URL}/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
       );
 
-      console.log("API 응답 데이터:", response.data.result[0]);
       await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
-      console.log("저장됨");
       setLoading(false);
       router.navigate("/busDetailPage");
     } catch (error) {
@@ -70,7 +68,6 @@ export default function SearchResultRoute() {
           return;
         }
 
-        console.log("✅ 버스 경로 응답:", routeList);
         setData(routeList);
       } catch (error) {
         console.error("❌ 버스 경로 요청 실패:", error);

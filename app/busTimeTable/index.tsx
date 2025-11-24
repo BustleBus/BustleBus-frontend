@@ -13,7 +13,6 @@ export default function BusTimeTable() {
       if (selectedBusString) {
         const selectedBus = JSON.parse(selectedBusString);
 
-        console.log("🕒 시간표:", selectedBus.timetable);
         setTimeTable(selectedBus.timetable);
       }
     };

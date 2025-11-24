@@ -20,7 +20,6 @@ export default function SearchBus() {
   const [busData, setBusData] = useState<any>(null); // Fix type
   const router = useRouter();
   const [, setLoading] = useAtom(loadingAtom);
-  console.log("busLog", busLogs);
   const handleSearch = async (busNo: string) => {
     if (!busNo.trim()) {
       // 빈 검색어 처리
@@ -33,14 +32,11 @@ export default function SearchBus() {
         console.error("도시 정보를 찾을 수 없습니다.");
         return;
       }
-      console.log(cityCode);
       const odsayCityCode = JSON.parse(cityCode).OdsayCityCode;
-      console.log("busNo", busNo, "odsayCityCode", odsayCityCode);
       const response = await axios.get(
         `${process.env.EXPO_PUBLIC_API_URL}/api/v1/busDetails?busNo=${busNo}&cityCode=${odsayCityCode}`
       );
 
-      console.log("API 응답 데이터:", response.data);
       setBusData(response.data);
 
       setIsSearch(true);

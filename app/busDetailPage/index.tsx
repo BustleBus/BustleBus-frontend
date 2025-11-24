@@ -41,8 +41,6 @@ export default function BusDetailPage() {
             const cityCode = JSON.parse(cityCodeStr).OdsayCityCode;
             const busNo = parsed.busNumber || parsed.busNo;
             
-            console.log(`Fetching details for favorite bus: ${busNo}, city: ${cityCode}`);
-            
             const response = await axios.get(
               `${process.env.EXPO_PUBLIC_API_URL}/api/v1/busDetails?busNo=${busNo}&cityCode=${cityCode}`
             );
@@ -135,7 +133,6 @@ export default function BusDetailPage() {
 
         if (!response || !response.data) throw new Error("No response data");
 
-        console.log(response.data.result);
         const realTimeData = response.data.result;
         // 방향별 실시간 위치 추출
         const startPointBuses =
@@ -200,8 +197,6 @@ export default function BusDetailPage() {
   // Auto-select the correct direction tab when coming from route search
   useEffect(() => {
     if (routeContext?.fromRouteSearch && selectedBus && busStations.length > 0 && reverseStations.length > 0) {
-      console.log("🔍 Auto-selecting direction...");
-      console.log("Route Context:", routeContext);
       
       const startNameNormalized = removeBrackets(routeContext.startName);
       const endNameNormalized = removeBrackets(routeContext.endName);
@@ -218,9 +213,6 @@ export default function BusDetailPage() {
       const startIdxStartPoint = findIndex(reverseStations, startNameNormalized);
       const endIdxStartPoint = findIndex(reverseStations, endNameNormalized);
 
-      console.log(`EndPoint Dir: Start(${startIdxEndPoint}) -> End(${endIdxEndPoint})`);
-      console.log(`StartPoint Dir: Start(${startIdxStartPoint}) -> End(${endIdxStartPoint})`);
-
       // Logic: Prefer direction where Start appears BEFORE End (Start < End)
       // If End is not found (-1), we can't strictly determine order, but if Start is found, we might default to it.
       // However, usually for a valid route, both should be present in the correct direction.
@@ -229,22 +221,16 @@ export default function BusDetailPage() {
       const isValidStartPoint = startIdxStartPoint !== -1 && endIdxStartPoint !== -1 && startIdxStartPoint < endIdxStartPoint;
 
       if (isValidEndPoint) {
-        console.log("✅ Setting direction to (EndPoint):", selectedBus.busEndPoint);
         setDirection(selectedBus.busEndPoint);
       } else if (isValidStartPoint) {
-        console.log("✅ Setting direction to (StartPoint):", selectedBus.busStartPoint);
         setDirection(selectedBus.busStartPoint);
       } else {
         // Fallback: If we can't determine by order (maybe circular or partial data), 
         // just try to find where Start exists.
         if (startIdxEndPoint !== -1) {
-           console.log("⚠️ Order check failed, falling back to Start existence (EndPoint):", selectedBus.busEndPoint);
            setDirection(selectedBus.busEndPoint);
         } else if (startIdxStartPoint !== -1) {
-           console.log("⚠️ Order check failed, falling back to Start existence (StartPoint):", selectedBus.busStartPoint);
            setDirection(selectedBus.busStartPoint);
-        } else {
-           console.log("⚠️ Departure station not found in either direction!");
         }
       }
     }

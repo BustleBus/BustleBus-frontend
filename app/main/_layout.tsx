@@ -24,7 +24,6 @@ export default function MainLayout() {
       try {
         const value = await AsyncStorage.getItem("selectedCity");
 
-        console.log(value);
         if (value) {
           const parsed = JSON.parse(value);
           const label = `${transRegion[parsed.cityRegion]} ${parsed.cityName}`;

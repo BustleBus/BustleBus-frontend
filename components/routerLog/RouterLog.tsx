@@ -28,10 +28,8 @@ export default function RouterLog({
   const router = useRouter();
   // ✅ 검색 로그 클릭 시: index 저장 후 페이지 이동
   const handlePress = async () => {
-    console.log("history", history);
     try {
       await AsyncStorage.setItem("selectedBus", JSON.stringify(history));
-      console.log("✅ 선택된 버스 위치 저장 완료");
       router.navigate("/searchResultRoute");
     } catch (error) {
       console.error("❌ 선택된 버스 위치 저장 실패:", error);
@@ -47,7 +45,6 @@ export default function RouterLog({
         // 🔄 특정 인덱스 삭제
         const updatedHistory = history.filter((_, i) => i !== index);
         await AsyncStorage.setItem("search_history", JSON.stringify(updatedHistory));
-        console.log("🔄 검색 히스토리 삭제 완료:", updatedHistory);
 
         // 🔄 부모에게 알리기
         onDelete(index);
