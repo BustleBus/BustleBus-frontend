@@ -13,11 +13,15 @@ export default function SearchResultListItem({
   bus,
   crowdLevel,
   busNo,
+  startName,
+  endName,
 }: {
   time: string;
   bus: string;
   crowdLevel: string;
   busNo: string;
+  startName?: string;
+  endName?: string;
 }) {
   const [, setLoading] = useAtom(loadingAtom);
   const fetchBusData = async () => {
@@ -39,6 +43,18 @@ export default function SearchResultListItem({
 
       console.log("API 응답 데이터:", response.data.result[0]);
       await AsyncStorage.setItem("selectedBus", JSON.stringify(response.data.result[0]));
+      
+      // Store route context if coming from route search
+      if (startName && endName) {
+        await AsyncStorage.setItem("routeContext", JSON.stringify({
+          startName,
+          endName,
+          fromRouteSearch: true
+        }));
+      } else {
+        await AsyncStorage.removeItem("routeContext");
+      }
+      
       console.log("저장됨");
       setLoading(false);
       router.navigate("/busDetailPage");
@@ -57,11 +73,10 @@ export default function SearchResultListItem({
       >
         <View style={styles.card}>
           <View style={styles.leftSection}>
-            <Text style={styles.optimalText}>최적</Text>
             <Ionicons name="bus-outline" size={20} color="blue" style={{ marginTop: 2 }} />
             <Text style={styles.timeText}>{time}</Text>
           </View>
-          <View>
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
             <Text style={styles.routeText}>
               <Text>{bus}</Text>
             </Text>
@@ -110,8 +125,10 @@ const styles = StyleSheet.create({
   routeText: {
     color: Colors.text,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
+    justifyContent: "center",
+    textAlignVertical: "center",
   },
   routeMultiView: {
     color: Colors.text,

@@ -26,14 +26,13 @@ export default function SearchResultListItems({
           <ListItemBox showClose={false} onPress={() => onPress(firstBus, secondBus)}>
             <View style={styles.card}>
               <View style={styles.leftSection}>
-                <Text style={styles.optimalText}>최적</Text>
                 <Ionicons name="bus-outline" size={20} color="blue" style={{ marginTop: 2 }} />
                 <Text style={styles.timeText}>{time}</Text>
               </View>
               <View>
                 <View style={styles.routeMultiView}>
-                  <Text>{firstBus}</Text>
-                  <Text>{secondBus}</Text>
+                  <Text style={styles.routeText}>{firstBus}</Text>
+                  <Text style={styles.routeText}>{secondBus}</Text>
                 </View>
               </View>
               <View style={styles.rightSection}>
@@ -82,12 +81,14 @@ const styles = StyleSheet.create({
   routeText: {
     color: Colors.text,
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     flex: 1,
+    textAlign: "center",
   },
   routeMultiView: {
     flexDirection: "column",
     gap: 2,
+    alignItems: "center",
   },
   crowdText: {
     color: Colors.primary,
