@@ -26,7 +26,12 @@ export default function MainLayout() {
         }
 
         const selectedBus = JSON.parse(selectedBusString);
-        setBus(selectedBus);
+        // Handle both busNo (from API) and busNumber (from favorites)
+        const normalizedBus = {
+          busNumber: selectedBus.busNumber || selectedBus.busNo,
+          busOrigin: selectedBus.busOrigin || selectedBus.busStartPoint,
+        };
+        setBus(normalizedBus);
 
         // Load favorite status
         const favoriteString = await AsyncStorage.getItem("busFavorite");
@@ -34,7 +39,7 @@ export default function MainLayout() {
 
         const exists = favorite.some(
           item =>
-            item.busNumber === selectedBus.busNumber && item.busOrigin === selectedBus.busOrigin
+            item.busNumber === normalizedBus.busNumber && item.busOrigin === normalizedBus.busOrigin
         );
         setIsFavorited(exists);
       } catch (error) {
@@ -62,7 +67,14 @@ export default function MainLayout() {
         );
         setIsFavorited(false);
       } else {
-        updatedFavorite = [...favorite, bus];
+        // Save only necessary fields with consistent naming
+        updatedFavorite = [
+          ...favorite,
+          {
+            busNumber: bus.busNumber,
+            busOrigin: bus.busOrigin,
+          },
+        ];
         setIsFavorited(true);
       }
 

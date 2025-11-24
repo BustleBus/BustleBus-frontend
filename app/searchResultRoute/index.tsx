@@ -95,6 +95,8 @@ export default function SearchResultRoute() {
                   bus={`${route.busSubPaths[0].busOrigin}`}
                   crowdLevel=""
                   busNo={`${route.busSubPaths[0].busNo}`}
+                  startName={route.busSubPaths[0].startName}
+                  endName={route.busSubPaths[0].endName}
                 />
               ) : (
                 <SearchResultListItems

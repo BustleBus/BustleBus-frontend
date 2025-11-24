@@ -83,6 +83,7 @@ export default function SearchBus() {
       );
 
       await AsyncStorage.setItem("BusLog", JSON.stringify(updatedLogs));
+      await AsyncStorage.removeItem("routeContext"); // Clear route context
       router.navigate("/busDetailPage");
     } catch (error) {
       console.error("Error saving bus log:", error);
@@ -104,6 +105,7 @@ export default function SearchBus() {
   const handlePressLog = async (item: any) => {
     try {
       await AsyncStorage.setItem("selectedBus", JSON.stringify(item));
+      await AsyncStorage.removeItem("routeContext"); // Clear route context
     } catch (error) {
       console.error("Error saving bus log:", error);
     }

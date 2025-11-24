@@ -69,6 +69,7 @@ export default function Index() {
     try {
       // Save selected bus to AsyncStorage
       await AsyncStorage.setItem("selectedBus", JSON.stringify(bus));
+      await AsyncStorage.removeItem("routeContext"); // Clear route context
 
       // Navigate to bus detail page
       router.push("/busDetailPage");
@@ -115,23 +116,16 @@ export default function Index() {
           </View>
 
           <View style={sharedStyles.column}>
-            {Array.from({ length: Math.ceil(favoriteRoutes.length / 2) }).map((_, rowIdx) => {
-              const pair = favoriteRoutes.slice(rowIdx * 2, rowIdx * 2 + 2);
-              return (
-                <View key={rowIdx} style={sharedStyles.row}>
-                  {pair.map((route, i) => (
-                    <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
-                      <FavoriteRoute
-                        route={route}
-                        start={route.startPlaceName}
-                        end={route.endPlaceName}
-                        onRemove={() => handleFavoriteDelete(route)}
-                      />
-                    </View>
-                  ))}
-                </View>
-              );
-            })}
+            {favoriteRoutes.map((route, i) => (
+              <View key={i} style={styles.padding}>
+                <FavoriteRoute
+                  route={route}
+                  start={route.startPlaceName}
+                  end={route.endPlaceName}
+                  onRemove={() => handleFavoriteDelete(route)}
+                />
+              </View>
+            ))}
             {favoriteRoutes.length === 0 && (
               <Text style={styles.emptyText}>저장된 경로가 없습니다</Text>
             )}
@@ -154,7 +148,7 @@ export default function Index() {
           </View>
           <View style={sharedStyles.column}>
             {favoriteBuses.map((bus, i) => (
-              <View key={i} style={[sharedStyles.flexOne, styles.padding]}>
+              <View key={i} style={styles.padding}>
                 <FavoriteBus
                   onPress={() => handleBusPress(bus)}
                   onDelete={() => handleBusFavoriteDelete(bus)}
