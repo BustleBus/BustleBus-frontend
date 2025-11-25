@@ -41,6 +41,7 @@ export default function MainLayout() {
       screenOptions={{
         headerStyle: {
           backgroundColor: Colors.primary,
+          height: 56,
         },
         contentStyle: {
           backgroundColor: Colors.background,

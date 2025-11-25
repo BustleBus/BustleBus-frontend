@@ -9,7 +9,6 @@ export default function Layout() {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
         <StatusBar style="auto" backgroundColor={scheme === "dark" ? "#121212" : "#F7F9FC"} />
         <Stack
           screenOptions={{
@@ -17,7 +16,6 @@ export default function Layout() {
           }}
         />
         <GlobalLoading />
-      </SafeAreaView>
     </SafeAreaProvider>
   );
 }
