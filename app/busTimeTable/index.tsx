@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { StyleSheet, View, Text, ScrollView } from "react-native";
+import { StyleSheet, View, Text, ScrollView, StatusBar } from "react-native";
 
 import { Colors } from "@/styles/shared";
 
@@ -19,7 +19,9 @@ export default function BusTimeTable() {
     fetchTimeTable();
   }, []);
   return (
-    <ScrollView style={styles.container}>
+    <>
+      <StatusBar backgroundColor={Colors.background} barStyle="dark-content" />
+      <ScrollView style={styles.container}>
       <View style={styles.tableHeader}>
         <Text style={styles.headerText}>기점발</Text>
         <Text style={styles.headerText}>종점발</Text>
@@ -31,7 +33,8 @@ export default function BusTimeTable() {
             <Text style={styles.time}>{end}</Text>
           </View>
         ))}
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
 

@@ -37,6 +37,7 @@
     "expo-web-browser": "~15.0.9",
     "jest-expo": "~54.0.13",
     "jotai": "^2.12.5",
+    "ngrok": "^5.0.0-beta.2",
     "npm-check-updates": "^18.0.1",
     "react": "19.1.0",
     "react-dom": "19.1.0",
