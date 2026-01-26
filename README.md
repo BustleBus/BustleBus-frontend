@@ -67,9 +67,10 @@
 ## 🎥 데모 영상
 
 <div align="center">
-  
-![시뮬레이션 데모](./readme/SimulationWithApp.mp4)
-
+  <video width="600" controls>
+    <source src="./readme/SimulationWithApp.mp4" type="video/mp4">
+    시뮬레이션 데모 영상
+  </video>
 </div>
 
 Unity 시뮬레이션과 앱이 실시간으로 연동되는 모습을 확인할 수 있습니다.
